@@ -1,6 +1,6 @@
 import * as Dat from 'dat.gui';
 import { Scene, Color } from 'three';
-import { Flower, Land, Block, Floor } from 'objects';
+import { Flower, Land, Block, Floor, Grid } from 'objects';
 import { BasicLights } from 'lights';
 
 class SeedScene extends Scene {
@@ -21,10 +21,11 @@ class SeedScene extends Scene {
         // Add meshes to scene
         const land = new Land();
         const floor = new Floor(this);
+        const grid = new Grid(this);
         const flower = new Flower(this);
         const block = new Block(this);
         const lights = new BasicLights();
-        this.add(floor, block, lights);
+        this.add(floor, grid, block, lights);
 
         // Populate GUI
         this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
