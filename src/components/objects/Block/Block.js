@@ -46,15 +46,16 @@ class Block extends Group {
     }
 
     blockArrow(key) {
+        debugger;
         switch(key) {
             case "ArrowRight":
-                this.position.x -= 1;
+                this.position.x = Math.max(this.position.x - 1, -4.5);
                 break;
             case "ArrowLeft":
-                this.position.x += 1;
+                this.position.x = Math.min(this.position.x + 1, 4.5);;
                 break;
             case "ArrowDown":
-                this.position.y = Math.max (this.position.y - 1, -0.5);
+                this.position.y = Math.max(this.position.y - 1, -0.5);
                 break;
             case "Enter":
                 this.position.y = -0.5;
@@ -63,7 +64,6 @@ class Block extends Group {
     }
 
     floored() {
-        debugger;
         return (this.position.y <= -0.50);
     }
 }
