@@ -57,7 +57,7 @@ class Block extends Group {
             case "ArrowDown":
                 this.position.y = Math.max(this.position.y - 1, -0.5);
                 break;
-            case "Enter":
+            case " ":
                 this.position.y = -0.5;
                 break;
         }
