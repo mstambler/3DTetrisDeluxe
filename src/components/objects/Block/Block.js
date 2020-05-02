@@ -61,6 +61,11 @@ class Block extends Group {
                 break;
         }
     }
+
+    floored() {
+        debugger;
+        return (this.position.y <= -0.50);
+    }
 }
 
 export default Block;

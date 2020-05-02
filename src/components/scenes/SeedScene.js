@@ -46,6 +46,13 @@ class SeedScene extends Scene {
         for (const obj of updateList) {
             obj.update(timeStamp);
         }
+
+        var floored = this.state.curBlock.floored();
+        if (floored) {
+            const newBlock = new Block(this);
+            this.state.curBlock = newBlock;
+            this.add(newBlock);
+        }
     }
 
     arrow(key) {
