@@ -9,6 +9,7 @@
 import { WebGLRenderer, PerspectiveCamera, Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SeedScene } from 'scenes';
+import Block from './components/objects/Block/Block';
 
 // Initialize core ThreeJS components
 const scene = new SeedScene();
@@ -31,7 +32,8 @@ document.body.appendChild(canvas);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.minDistance = 25;
+controls.enableZoom = true;
+controls.minDistance = 10;
 controls.maxDistance = 50;
 controls.minPolarAngle = 0;
 controls.maxPolarAngle = Math.PI/2 + 0.05;
@@ -55,3 +57,12 @@ const windowResizeHandler = () => {
 };
 windowResizeHandler();
 window.addEventListener('resize', windowResizeHandler, false);
+
+
+const windowKeyHandler = (event) => {
+    const keys = ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "Enter"]
+    if (keys.includes(event.key)) {
+        scene.arrow(event.key);
+    }
+};
+window.addEventListener('keydown', windowKeyHandler, false);

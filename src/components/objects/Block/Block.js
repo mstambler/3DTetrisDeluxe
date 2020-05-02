@@ -44,6 +44,23 @@ class Block extends Group {
             this.position.y -= 0.01;
         }
     }
+
+    blockArrow(key) {
+        switch(key) {
+            case "ArrowRight":
+                this.position.x -= 1;
+                break;
+            case "ArrowLeft":
+                this.position.x += 1;
+                break;
+            case "ArrowDown":
+                this.position.y = Math.max (this.position.y - 1, -0.5);
+                break;
+            case "Enter":
+                this.position.y = -0.5;
+                break;
+        }
+    }
 }
 
 export default Block;

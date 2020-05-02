@@ -13,6 +13,7 @@ class SeedScene extends Scene {
             gui: new Dat.GUI(), // Create GUI for scene
             rotationSpeed: 1,
             updateList: [],
+            curBlock: null,
         };
 
         // Set background to a nice color
@@ -24,6 +25,8 @@ class SeedScene extends Scene {
         const grid = new Grid(this);
         const flower = new Flower(this);
         const block = new Block(this);
+        this.state.curBlock = block;
+
         const lights = new BasicLights();
         this.add(floor, grid, block, lights);
 
@@ -43,6 +46,10 @@ class SeedScene extends Scene {
         for (const obj of updateList) {
             obj.update(timeStamp);
         }
+    }
+
+    arrow(key) {
+        this.state.curBlock.blockArrow(key);
     }
 }
 
