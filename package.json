@@ -1,19 +1,17 @@
 {
-  "name": "lower-case-dashed-name-of-project",
-  "repository": "REPOSITORY-NAME-AS-IT-APPEARS-IN-GITHUB-URL",
+  "name": "3d-tetris-deluxe",
+  "repository": "3DTetrisDeluxe",
   "version": "0.1.0",
-  "title": "PROJECT TITLE HERE",
-  "description": "SHORT DESCRIPTION OF PROJECT HERE. ONE TO TWO SENTENCES MAX",
+  "title": "3D Tetris Deluxe",
+  "description": "3D Tetris game with cool visuals and power-ups",
   "keywords": [
     "Princeton",
     "graphics",
     "three.js",
     "COS 426",
     "ivy league",
-    "keyword1",
-    "keyword2",
-    "...",
-    "this last entry CANNOT have a comma after it ->"
+    "tetris",
+    "3D"
   ],
   "scripts": {
     "start": "webpack-dev-server --mode development --output-public-path '/'",
