@@ -215,7 +215,12 @@ class Block extends Group {
         }
         this.state.offsets = offsets;
 
-        this.position.x = -0.5;
+        if (this.state.shape == 1) {
+            this.position.x = 1.5;
+        }
+        else {
+            this.position.x = 0.5;
+        }
         this.position.y = 9.5;
 
         // Add self to parent's update list
