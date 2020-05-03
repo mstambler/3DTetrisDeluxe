@@ -1,5 +1,5 @@
 import * as Dat from 'dat.gui';
-import { Scene, Color } from 'three';
+import { Scene, Color, Mesh, CubeGeometry, MeshBasicMaterial } from 'three';
 import { Flower, Land, Block, Floor, Grid } from 'objects';
 import { BasicLights } from 'lights';
 
@@ -29,6 +29,14 @@ class SeedScene extends Scene {
 
         const lights = new BasicLights();
         this.add(floor, grid, block, lights);
+
+        var boundingBox = new Mesh(
+            new CubeGeometry(
+                10, 20, 1,
+              10, 20, 1),
+            new MeshBasicMaterial( { color: 0xffaa00, wireframe: true } )
+          );
+        this.add(boundingBox);
 
         // Populate GUI
         this.state.gui.add(this.state, 'rotationSpeed', -5, 5);

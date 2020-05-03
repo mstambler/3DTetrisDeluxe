@@ -31,7 +31,7 @@ class Floor extends Group {
 
         // add to mesh
         this.add(lines);
-        this.position.y = -1;
+        this.position.y = -10;
 
         // Add self to parent's update list
         //parent.addToUpdateList(this);

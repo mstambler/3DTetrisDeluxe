@@ -147,7 +147,7 @@ class Block extends Group {
         const block = outlinedBox(shape);
         this.add(block);
         this.position.x = Math.floor(Math.random()*10) - 4.5;
-        this.position.y = 4;
+        this.position.y = 9.5;
 
 
         // Add self to parent's update list
@@ -159,7 +159,7 @@ class Block extends Group {
     }
 
     update(timeStamp) {
-        if (this.position.y > -0.5) {
+        if (this.position.y > -9.5) {
             this.position.y -= 0.01;
         }
     }
@@ -173,16 +173,16 @@ class Block extends Group {
                 this.position.x = Math.min(this.position.x + 1, 4.5);;
                 break;
             case "ArrowDown":
-                this.position.y = Math.max(this.position.y - 1, -0.5);
+                this.position.y = Math.max(this.position.y - 1, -10);
                 break;
             case " ":
-                this.position.y = -0.5;
+                this.position.y = -9.5;
                 break;
         }
     }
 
     floored() {
-        return (this.position.y <= -0.50);
+        return (this.position.y <= -9.5);
     }
 }
 
