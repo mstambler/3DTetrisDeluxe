@@ -3,16 +3,15 @@ import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtil
 
 function outlinedBox(shape) {
     // Make block
-    let geometries = [];
-    let material = new MeshPhongMaterial();
+    const geometries = [];
+    let material;
 
     switch(shape) {
-        case 0:
-        {
-            let geometry1 = new BoxBufferGeometry(1, 1, 1);
-            let geometry2 = new BoxBufferGeometry(1, 1, 1);
-            let geometry3 = new BoxBufferGeometry(1, 1, 1);
-            let geometry4 = new BoxBufferGeometry(1, 1, 1);
+        case 0: {
+            const geometry1 = new BoxBufferGeometry(1, 1, 1);
+            const geometry2 = new BoxBufferGeometry(1, 1, 1);
+            const geometry3 = new BoxBufferGeometry(1, 1, 1);
+            const geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0xfcff4a});
 
             geometry2.translate(-1, 0, 0);
@@ -25,12 +24,11 @@ function outlinedBox(shape) {
             geometries.push(geometry4);
             break;
         }
-        case 1:
-        {
-            let geometry1 = new BoxBufferGeometry(1, 1, 1);
-            let geometry2 = new BoxBufferGeometry(1, 1, 1);
-            let geometry3 = new BoxBufferGeometry(1, 1, 1);
-            let geometry4 = new BoxBufferGeometry(1, 1, 1);
+        case 1: {
+            const geometry1 = new BoxBufferGeometry(1, 1, 1);
+            const geometry2 = new BoxBufferGeometry(1, 1, 1);
+            const geometry3 = new BoxBufferGeometry(1, 1, 1);
+            const geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0x40fcff});
 
             geometry2.translate(-1, 0, 0);
@@ -43,12 +41,11 @@ function outlinedBox(shape) {
             geometries.push(geometry4);
             break;
         }
-        case 2:
-        {
-            let geometry1 = new BoxBufferGeometry(1, 1, 1);
-            let geometry2 = new BoxBufferGeometry(1, 1, 1);
-            let geometry3 = new BoxBufferGeometry(1, 1, 1);
-            let geometry4 = new BoxBufferGeometry(1, 1, 1);
+        case 2: {
+            const geometry1 = new BoxBufferGeometry(1, 1, 1);
+            const geometry2 = new BoxBufferGeometry(1, 1, 1);
+            const geometry3 = new BoxBufferGeometry(1, 1, 1);
+            const geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0xff0000});
 
             geometry2.translate(-1, 1, 0);
@@ -61,12 +58,11 @@ function outlinedBox(shape) {
             geometries.push(geometry4);
             break;
         }
-        case 3:
-        {
-            let geometry1 = new BoxBufferGeometry(1, 1, 1);
-            let geometry2 = new BoxBufferGeometry(1, 1, 1);
-            let geometry3 = new BoxBufferGeometry(1, 1, 1);
-            let geometry4 = new BoxBufferGeometry(1, 1, 1);
+        case 3: {
+            const geometry1 = new BoxBufferGeometry(1, 1, 1);
+            const geometry2 = new BoxBufferGeometry(1, 1, 1);
+            const geometry3 = new BoxBufferGeometry(1, 1, 1);
+            const geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0x24ab27});
 
             geometry2.translate(1, 1, 0);
@@ -79,12 +75,11 @@ function outlinedBox(shape) {
             geometries.push(geometry4);
             break;
         }
-        case 4:
-        {
-            let geometry1 = new BoxBufferGeometry(1, 1, 1);
-            let geometry2 = new BoxBufferGeometry(1, 1, 1);
-            let geometry3 = new BoxBufferGeometry(1, 1, 1);
-            let geometry4 = new BoxBufferGeometry(1, 1, 1);
+        case 4: {
+            const geometry1 = new BoxBufferGeometry(1, 1, 1);
+            const geometry2 = new BoxBufferGeometry(1, 1, 1);
+            const geometry3 = new BoxBufferGeometry(1, 1, 1);
+            const geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0xcf7f00});
 
             geometry2.translate(1, 0, 0);
@@ -97,12 +92,11 @@ function outlinedBox(shape) {
             geometries.push(geometry4);
             break;
         }
-        case 5:
-        {
-            let geometry1 = new BoxBufferGeometry(1, 1, 1);
-            let geometry2 = new BoxBufferGeometry(1, 1, 1);
-            let geometry3 = new BoxBufferGeometry(1, 1, 1);
-            let geometry4 = new BoxBufferGeometry(1, 1, 1);
+        case 5: {
+            const geometry1 = new BoxBufferGeometry(1, 1, 1);
+            const geometry2 = new BoxBufferGeometry(1, 1, 1);
+            const geometry3 = new BoxBufferGeometry(1, 1, 1);
+            const geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0x121db8});
 
             geometry2.translate(-1, 0, 0);
@@ -115,12 +109,11 @@ function outlinedBox(shape) {
             geometries.push(geometry4);
             break;
         }
-        case 6:
-            {
-            let geometry1 = new BoxBufferGeometry(1, 1, 1);
-            let geometry2 = new BoxBufferGeometry(1, 1, 1);
-            let geometry3 = new BoxBufferGeometry(1, 1, 1);
-            let geometry4 = new BoxBufferGeometry(1, 1, 1);
+        case 6: {
+            const geometry1 = new BoxBufferGeometry(1, 1, 1);
+            const geometry2 = new BoxBufferGeometry(1, 1, 1);
+            const geometry3 = new BoxBufferGeometry(1, 1, 1);
+            const geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0x8d0fb8});
 
             geometry2.translate(1, 0, 0);
@@ -155,13 +148,15 @@ class Block extends Group {
         this.state = {
             gui: parent.state.gui,
             shape: -1,
+            continuousPos: 10,
+            shape: Math.floor(Math.random()*7),
         };
 
         this.name = 'block';
-        const shape = Math.floor(Math.random()*7);
-        this.state.shape = shape;
-        const block = outlinedBox(shape);
+
+        const block = outlinedBox(this.state.shape);
         this.add(block);
+
         this.position.x = Math.floor(Math.random()*10) - 4.5;
         this.position.y = 9.5;
 
@@ -176,7 +171,8 @@ class Block extends Group {
 
     update(timeStamp) {
         if (this.position.y > -9.5) {
-            this.position.y -= 0.01;
+            this.state.continuousPos -= 0.01;
+            this.position.y = Math.ceil(this.state.continuousPos) - 0.5;
         }
     }
 
@@ -189,9 +185,11 @@ class Block extends Group {
                 this.position.x = Math.min(this.position.x + 1, 4.5);;
                 break;
             case "ArrowDown":
+                this.state.continuousPos = Math.max(this.state.continuousPos - 1, -10);
                 this.position.y = Math.max(this.position.y - 1, -10);
                 break;
             case " ":
+                this.state.continuousPos = -9;
                 this.position.y = -9.5;
                 break;
             case "ArrowUp":
