@@ -197,6 +197,7 @@ class Block extends Group {
             shape: Math.floor(Math.random()*7),
             cubes: [],
             offsets: [],
+            floored: false,
         };
 
         this.name = 'block';
@@ -226,38 +227,121 @@ class Block extends Group {
     }
 
     update(timeStamp) {
-        if (this.position.y > -9.5) {
-            this.state.continuousPos -= 0.02;
-            this.position.y = Math.ceil(this.state.continuousPos) - 0.5;
+        for (let offset of this.state.offsets) {
+            if (this.position.y + offset.y < -9) {
+                this.state.floored = true;
+                return;
+            }
         }
+        this.state.continuousPos -= 0.02;
+        this.position.y = Math.ceil(this.state.continuousPos) - 0.5;
     }
 
     blockArrow(key) {
         switch(key) {
             case "ArrowRight":
-                this.position.x = Math.max(this.position.x - 1, -4.5);
+                for (let offset of this.state.offsets) {
+                    if (this.position.x + offset.x < -4) {
+                        return;
+                    }
+                }
+                this.position.x = this.position.x - 1;
                 break;
             case "ArrowLeft":
-                this.position.x = Math.min(this.position.x + 1, 4.5);;
+                for (let offset of this.state.offsets) {
+                    if (this.position.x + offset.x > 4) {
+                        return;
+                    }
+                }
+                this.position.x = this.position.x + 1;
                 break;
             case "ArrowDown":
-                this.state.continuousPos = Math.max(this.state.continuousPos - 1, -10);
-                this.position.y = Math.max(this.position.y - 1, -10);
+                for (let offset of this.state.offsets) {
+                    if (this.position.y + offset.y < -9) {
+                        this.state.floored = true;
+                        return;
+                    }
+                }
+                this.state.continuousPos = this.state.continuousPos - 1;
+                this.position.y = this.position.y - 1;
                 break;
             case " ":
-                this.state.continuousPos = -9;
-                this.position.y = -9.5;
+                let minY = this.position.y;
+                for (let offset of this.state.offsets) {
+                    if (this.position.y + offset.y < -9) {
+                        this.state.floored = true;
+                        return;
+                    }
+                    if (this.position.y + offset.y < minY) {
+                        minY = this.position.y + offset.y;
+                    }
+                }
+                const dist = minY + 9.5;
+                this.state.continuousPos -= dist;
+                this.position.y -= dist;
                 break;
             case "ArrowUp":
-                if (this.state.shape != 0) {
+                if (this.state.shape > 1) {
                     this.rotateZ(Math.PI / 2);
+                    for (let offset of this.state.offsets) {
+                        const x = offset.x;
+                        offset.x = -1*offset.y;
+                        offset.y = x;
+                    }
+
+                    for (let offset of this.state.offsets) {
+                        // check to the right
+                        if (this.position.x + offset.x < -4.5) {
+                            this.position.x += 1;
+                            return;
+                        } else if (this.position.x + offset.x > 4.5) {
+                            this.position.x -= 1;
+                            return;
+                        }
+                        if (this.position.y + offset.y > 9.5) {
+                            this.position.y -= 1;
+                            this.state.continuousPos -= 1;
+                            return;
+                        }
+                    }
+                } else if (this.state.shape == 1) {
+                    if (this.state.offsets[1].y == 0) { // horizontal
+                        this.rotateZ(Math.PI / 2);
+                        for (let offset of this.state.offsets) {
+                            offset.y = offset.x;
+                            offset.x = 0;
+                        }
+                        for (let offset of this.state.offsets) {
+                            // check down
+                            let dist = 0;
+                            if (this.position.y + offset.y < -9.5) {
+                                dist += 1;
+                            }
+                            this.position.y += dist;
+                            this.state.continuousPos += dist;
+                        }
+                    } else { // vertical
+                        this.rotateZ(-Math.PI / 2);
+                        for (let offset of this.state.offsets) {
+                            offset.x = offset.y;
+                            offset.y = 0;
+                        }
+                        for (let offset of this.state.offsets) {
+                            // check to the right
+                            let dist = 0;
+                            if (this.position.x + offset.x < -4.5) {
+                                dist += 1;
+                            }
+                            this.position.x += dist;
+                        }
+                    }
                 }
                 break;
         }
     }
 
     floored() {
-        return (this.position.y <= -9.5);
+        return this.state.floored;
     }
 }
 
