@@ -3,31 +3,34 @@ import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtil
 
 function outlinedBox(shape) {
     // Make block
-    var geometries = [];
-    var material = new MeshPhongMaterial();
+    let geometries = [];
+    let material = new MeshPhongMaterial();
 
     switch(shape) {
         case 0:
-            var geometry1 = new BoxBufferGeometry(2, 2, 1);
-            //var geometry2 = new BoxBufferGeometry(1, 1, 1);
-            //var geometry3 = new BoxBufferGeometry(1, 1, 1);
-            //var geometry4 = new BoxBufferGeometry(1, 1, 1);
+        {
+            let geometry1 = new BoxBufferGeometry(1, 1, 1);
+            let geometry2 = new BoxBufferGeometry(1, 1, 1);
+            let geometry3 = new BoxBufferGeometry(1, 1, 1);
+            let geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0xfcff4a});
 
-            //geometry2.translate(-1, 0, 0);
-            //geometry3.translate(0, 1, 0);
-            //geometry4.translate(-1, 1, 0);
+            geometry2.translate(-1, 0, 0);
+            geometry3.translate(0, 1, 0);
+            geometry4.translate(-1, 1, 0);
 
             geometries.push(geometry1);
-            //geometries.push(geometry2);
-            //geometries.push(geometry3);
-            //geometries.push(geometry4);
+            geometries.push(geometry2);
+            geometries.push(geometry3);
+            geometries.push(geometry4);
             break;
+        }
         case 1:
-            var geometry1 = new BoxBufferGeometry(1, 1, 1);
-            var geometry2 = new BoxBufferGeometry(1, 1, 1);
-            var geometry3 = new BoxBufferGeometry(1, 1, 1);
-            var geometry4 = new BoxBufferGeometry(1, 1, 1);
+        {
+            let geometry1 = new BoxBufferGeometry(1, 1, 1);
+            let geometry2 = new BoxBufferGeometry(1, 1, 1);
+            let geometry3 = new BoxBufferGeometry(1, 1, 1);
+            let geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0x40fcff});
 
             geometry2.translate(-1, 0, 0);
@@ -39,11 +42,13 @@ function outlinedBox(shape) {
             geometries.push(geometry3);
             geometries.push(geometry4);
             break;
+        }
         case 2:
-            var geometry1 = new BoxBufferGeometry(1, 1, 1);
-            var geometry2 = new BoxBufferGeometry(1, 1, 1);
-            var geometry3 = new BoxBufferGeometry(1, 1, 1);
-            var geometry4 = new BoxBufferGeometry(1, 1, 1);
+        {
+            let geometry1 = new BoxBufferGeometry(1, 1, 1);
+            let geometry2 = new BoxBufferGeometry(1, 1, 1);
+            let geometry3 = new BoxBufferGeometry(1, 1, 1);
+            let geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0xff0000});
 
             geometry2.translate(-1, 1, 0);
@@ -55,11 +60,13 @@ function outlinedBox(shape) {
             geometries.push(geometry3);
             geometries.push(geometry4);
             break;
+        }
         case 3:
-            var geometry1 = new BoxBufferGeometry(1, 1, 1);
-            var geometry2 = new BoxBufferGeometry(1, 1, 1);
-            var geometry3 = new BoxBufferGeometry(1, 1, 1);
-            var geometry4 = new BoxBufferGeometry(1, 1, 1);
+        {
+            let geometry1 = new BoxBufferGeometry(1, 1, 1);
+            let geometry2 = new BoxBufferGeometry(1, 1, 1);
+            let geometry3 = new BoxBufferGeometry(1, 1, 1);
+            let geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0x24ab27});
 
             geometry2.translate(1, 1, 0);
@@ -71,11 +78,13 @@ function outlinedBox(shape) {
             geometries.push(geometry3);
             geometries.push(geometry4);
             break;
+        }
         case 4:
-            var geometry1 = new BoxBufferGeometry(1, 1, 1);
-            var geometry2 = new BoxBufferGeometry(1, 1, 1);
-            var geometry3 = new BoxBufferGeometry(1, 1, 1);
-            var geometry4 = new BoxBufferGeometry(1, 1, 1);
+        {
+            let geometry1 = new BoxBufferGeometry(1, 1, 1);
+            let geometry2 = new BoxBufferGeometry(1, 1, 1);
+            let geometry3 = new BoxBufferGeometry(1, 1, 1);
+            let geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0xcf7f00});
 
             geometry2.translate(1, 0, 0);
@@ -87,11 +96,13 @@ function outlinedBox(shape) {
             geometries.push(geometry3);
             geometries.push(geometry4);
             break;
+        }
         case 5:
-            var geometry1 = new BoxBufferGeometry(1, 1, 1);
-            var geometry2 = new BoxBufferGeometry(1, 1, 1);
-            var geometry3 = new BoxBufferGeometry(1, 1, 1);
-            var geometry4 = new BoxBufferGeometry(1, 1, 1);
+        {
+            let geometry1 = new BoxBufferGeometry(1, 1, 1);
+            let geometry2 = new BoxBufferGeometry(1, 1, 1);
+            let geometry3 = new BoxBufferGeometry(1, 1, 1);
+            let geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0x121db8});
 
             geometry2.translate(-1, 0, 0);
@@ -103,11 +114,13 @@ function outlinedBox(shape) {
             geometries.push(geometry3);
             geometries.push(geometry4);
             break;
+        }
         case 6:
-            var geometry1 = new BoxBufferGeometry(1, 1, 1);
-            var geometry2 = new BoxBufferGeometry(1, 1, 1);
-            var geometry3 = new BoxBufferGeometry(1, 1, 1);
-            var geometry4 = new BoxBufferGeometry(1, 1, 1);
+            {
+            let geometry1 = new BoxBufferGeometry(1, 1, 1);
+            let geometry2 = new BoxBufferGeometry(1, 1, 1);
+            let geometry3 = new BoxBufferGeometry(1, 1, 1);
+            let geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0x8d0fb8});
 
             geometry2.translate(1, 0, 0);
@@ -119,6 +132,7 @@ function outlinedBox(shape) {
             geometries.push(geometry3);
             geometries.push(geometry4);
             break;
+        }
     }
 
     const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
@@ -140,10 +154,12 @@ class Block extends Group {
         // Init state
         this.state = {
             gui: parent.state.gui,
+            shape: -1,
         };
 
         this.name = 'block';
         const shape = Math.floor(Math.random()*7);
+        this.state.shape = shape;
         const block = outlinedBox(shape);
         this.add(block);
         this.position.x = Math.floor(Math.random()*10) - 4.5;
@@ -179,7 +195,9 @@ class Block extends Group {
                 this.position.y = -9.5;
                 break;
             case "ArrowUp":
-                this.rotateZ(Math.PI / 2);
+                if (this.state.shape != 0) {
+                    this.rotateZ(Math.PI / 2);
+                }
                 break;
         }
     }
