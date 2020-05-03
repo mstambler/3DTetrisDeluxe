@@ -1,7 +1,6 @@
-import { Group, MeshBasicMaterial, Mesh, DoubleSide, Vector3 } from 'three';
-import { PlaneBufferGeometry, LineBasicMaterial, BufferGeometry, LineSegments } from 'three';
+import { Group, Vector3, LineBasicMaterial, BufferGeometry, LineSegments } from 'three';
 
-class Floor extends Group {
+class Grid extends Group {
     constructor(parent) {
         // Call parent Group() constructor
         super();
@@ -14,32 +13,40 @@ class Floor extends Group {
         this.name = 'grid';
 
         // Make lines
-        const numSquares = 10;
-        const numPoints = 2*(numSquares + 1);
+        const width = 10;
+        const height = 20;
         const points = [];
-        for (let i = 0; i < numSquares + 1; i++) {
-            const x = i - numSquares/2;
-            points.push(new Vector3(x, 0, -0.5));
-            points.push(new Vector3(x, 0, 0.5));
+        for (let i = 0; i < width + 1; i++) {
+            for (let j = 0; j < height + 1; j++) {
+                const x = i - width/2;
+                points.push(new Vector3(x, j, -0.5));
+                points.push(new Vector3(x, j, 0.5));
+            }
         }
-        points.push(points[0], points[numPoints - 2]);
-        points.push(points[1], points[numPoints - 1]);
+
+        for (let j = 0; j < height + 1; j++) {
+            points.push(new Vector3(-width/2, j, -0.5));
+            points.push(new Vector3(width/2, j, -0.5));
+            points.push(new Vector3(-width/2, j, 0.5));
+            points.push(new Vector3(width/2, j, 0.5));
+        }
+
+        for (let i = 0; i < width + 1; i++) {
+            const x = i - width/2;
+            points.push(new Vector3(x, 0, -0.5));
+            points.push(new Vector3(x, height, -0.5));
+            points.push(new Vector3(x, 0, 0.5));
+            points.push(new Vector3(x, height, 0.5));
+        }
 
         const lineGeometry = new BufferGeometry().setFromPoints(points);
-        const lineMaterial = new LineBasicMaterial({color: 0xFFFFFF});
+        const lineMaterial = new LineBasicMaterial({color: 0xffffff});
         const lines = new LineSegments(lineGeometry, lineMaterial);
 
         // add to mesh
         this.add(lines);
         this.position.y = -10;
-
-        // Add self to parent's update list
-        //parent.addToUpdateList(this);
-
-        // Populate GUI
-        // this.state.gui.add(this.state, 'bob');
-        // this.state.gui.add(this.state, 'spin');
     }
 }
 
-export default Floor;
+export default Grid;

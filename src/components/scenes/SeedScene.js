@@ -1,6 +1,6 @@
 import * as Dat from 'dat.gui';
-import { Scene, Color, Mesh, CubeGeometry, MeshBasicMaterial } from 'three';
-import { Flower, Land, Block, Floor, Grid } from 'objects';
+import { Scene, Color } from 'three';
+import { Block, Floor, Grid } from 'objects';
 import { BasicLights } from 'lights';
 
 class SeedScene extends Scene {
@@ -20,23 +20,13 @@ class SeedScene extends Scene {
         this.background = new Color(0x7ec0ee);
 
         // Add meshes to scene
-        const land = new Land();
         const floor = new Floor(this);
         const grid = new Grid(this);
-        const flower = new Flower(this);
         const block = new Block(this);
         this.state.curBlock = block;
 
         const lights = new BasicLights();
         this.add(floor, grid, block, lights);
-
-        var boundingBox = new Mesh(
-            new CubeGeometry(
-                10, 20, 1,
-              10, 20, 1),
-            new MeshBasicMaterial( { color: 0xffaa00, wireframe: true } )
-          );
-        this.add(boundingBox);
 
         // Populate GUI
         this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
@@ -47,16 +37,14 @@ class SeedScene extends Scene {
     }
 
     update(timeStamp) {
-        const { rotationSpeed, updateList } = this.state;
-        //this.rotation.y = (rotationSpeed * timeStamp) / 10000;
+        const { updateList } = this.state;
 
         // Call update for each object in the updateList
         for (const obj of updateList) {
             obj.update(timeStamp);
         }
 
-        var floored = this.state.curBlock.floored();
-        if (floored) {
+        if (this.state.curBlock.floored()) {
             const newBlock = new Block(this);
             this.state.curBlock = newBlock;
             this.add(newBlock);
