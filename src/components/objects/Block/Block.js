@@ -178,6 +178,9 @@ class Block extends Group {
             case " ":
                 this.position.y = -9.5;
                 break;
+            case "ArrowUp":
+                this.rotateZ(Math.PI / 2);
+                break;
         }
     }
 
