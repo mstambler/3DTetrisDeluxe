@@ -21,13 +21,6 @@ class Floor extends Group {
         // add to mesh
         this.add(mesh);
         this.position.y = -10;
-
-        // Add self to parent's update list
-        //parent.addToUpdateList(this);
-
-        // Populate GUI
-        // this.state.gui.add(this.state, 'bob');
-        // this.state.gui.add(this.state, 'spin');
     }
 }
 
