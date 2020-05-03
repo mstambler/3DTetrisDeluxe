@@ -8,20 +8,20 @@ function outlinedBox(shape) {
 
     switch(shape) {
         case 0:
-            var geometry1 = new BoxBufferGeometry(1, 1, 1);
-            var geometry2 = new BoxBufferGeometry(1, 1, 1);
-            var geometry3 = new BoxBufferGeometry(1, 1, 1);
-            var geometry4 = new BoxBufferGeometry(1, 1, 1);
+            var geometry1 = new BoxBufferGeometry(2, 2, 1);
+            //var geometry2 = new BoxBufferGeometry(1, 1, 1);
+            //var geometry3 = new BoxBufferGeometry(1, 1, 1);
+            //var geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0xfcff4a});
 
-            geometry2.translate(-1, 0, 0);
-            geometry3.translate(0, 1, 0);
-            geometry4.translate(-1, 1, 0);
+            //geometry2.translate(-1, 0, 0);
+            //geometry3.translate(0, 1, 0);
+            //geometry4.translate(-1, 1, 0);
 
             geometries.push(geometry1);
-            geometries.push(geometry2);
-            geometries.push(geometry3);
-            geometries.push(geometry4);
+            //geometries.push(geometry2);
+            //geometries.push(geometry3);
+            //geometries.push(geometry4);
             break;
         case 1:
             var geometry1 = new BoxBufferGeometry(1, 1, 1);
