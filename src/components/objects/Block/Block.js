@@ -1,9 +1,10 @@
 import { Group, BoxBufferGeometry, EdgesGeometry, MeshPhongMaterial, LineBasicMaterial, LineSegments, Mesh } from 'three';
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
-function outlinedBox(shape) {
+function makeBlock(shape) {
     // Make block
     const geometries = [];
+    let offsets;
     let material;
 
     switch(shape) {
@@ -15,8 +16,15 @@ function outlinedBox(shape) {
             material = new MeshPhongMaterial({color: 0xfcff4a});
 
             geometry2.translate(-1, 0, 0);
-            geometry3.translate(0, 1, 0);
-            geometry4.translate(-1, 1, 0);
+            geometry3.translate(0, -1, 0);
+            geometry4.translate(-1, -1, 0);
+
+            offsets = [
+                {x: 0, y: 0},
+                {x: -1, y: 0},
+                {x: 0, y: -1},
+                {x: -1, y: -1}
+            ];
 
             geometries.push(geometry1);
             geometries.push(geometry2);
@@ -33,7 +41,14 @@ function outlinedBox(shape) {
 
             geometry2.translate(-1, 0, 0);
             geometry3.translate(-2, 0, 0);
-            geometry4.translate(1, 0, 0);
+            geometry4.translate(-3, 0, 0);
+
+            offsets = [
+                {x: 0, y: 0},
+                {x: -1, y: 0},
+                {x: -2, y: 0},
+                {x: -3, y: 0}
+            ];
 
             geometries.push(geometry1);
             geometries.push(geometry2);
@@ -48,9 +63,16 @@ function outlinedBox(shape) {
             const geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0xff0000});
 
-            geometry2.translate(-1, 1, 0);
-            geometry3.translate(0, 1, 0);
-            geometry4.translate(1, 0, 0);
+            geometry2.translate(-1, 0, 0);
+            geometry3.translate(0, -1, 0);
+            geometry4.translate(1, -1, 0);
+
+            offsets = [
+                {x: 0, y: 0},
+                {x: -1, y: 0},
+                {x: 0, y: -1},
+                {x: 1, y: -1}
+            ];
 
             geometries.push(geometry1);
             geometries.push(geometry2);
@@ -65,9 +87,16 @@ function outlinedBox(shape) {
             const geometry4 = new BoxBufferGeometry(1, 1, 1);
             material = new MeshPhongMaterial({color: 0x24ab27});
 
-            geometry2.translate(1, 1, 0);
-            geometry3.translate(0, 1, 0);
-            geometry4.translate(-1, 0, 0);
+            geometry2.translate(1, 0, 0);
+            geometry3.translate(0, -1, 0);
+            geometry4.translate(-1, -1, 0);
+
+            offsets = [
+                {x: 0, y: 0},
+                {x: 1, y: 0},
+                {x: 0, y: -1},
+                {x: -1, y: -1}
+            ];
 
             geometries.push(geometry1);
             geometries.push(geometry2);
@@ -86,6 +115,13 @@ function outlinedBox(shape) {
             geometry3.translate(1, -1, 0);
             geometry4.translate(-1, 0, 0);
 
+            offsets = [
+                {x: 0, y: 0},
+                {x: 1, y: 0},
+                {x: 1, y: -1},
+                {x: -1, y: 0},
+            ];
+
             geometries.push(geometry1);
             geometries.push(geometry2);
             geometries.push(geometry3);
@@ -102,6 +138,13 @@ function outlinedBox(shape) {
             geometry2.translate(-1, 0, 0);
             geometry3.translate(-1, -1, 0);
             geometry4.translate(1, 0, 0);
+
+            offsets = [
+                {x: 0, y: 0},
+                {x: -1, y: 0},
+                {x: -1, y: -1},
+                {x: 1, y: 0},
+            ];
 
             geometries.push(geometry1);
             geometries.push(geometry2);
@@ -120,6 +163,13 @@ function outlinedBox(shape) {
             geometry3.translate(-1, 0, 0);
             geometry4.translate(0, -1, 0);
 
+            offsets = [
+                {x: 0, y: 0},
+                {x: 1, y: 0},
+                {x: -1, y: 0},
+                {x: 0, y: -1},
+            ];
+
             geometries.push(geometry1);
             geometries.push(geometry2);
             geometries.push(geometry3);
@@ -128,15 +178,10 @@ function outlinedBox(shape) {
         }
     }
 
-    const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
-    const mesh = new Mesh(mergedGeometry, material);
+    return [geometries, material, offsets];
 
-    // add outline
-    const edgesGeometry = new EdgesGeometry(mergedGeometry);
-    const edgesMaterial = new LineBasicMaterial( { color: 0x000000, linewidth: 4 } );
-    const edges = new LineSegments(edgesGeometry, edgesMaterial);
-    mesh.add(edges);
-    return mesh;
+    // const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
+    // const mesh = new Mesh(mergedGeometry, material);
   }
 
 class Block extends Group {
@@ -150,16 +195,27 @@ class Block extends Group {
             shape: -1,
             continuousPos: 10,
             shape: Math.floor(Math.random()*7),
+            cubes: [],
+            offsets: [],
         };
 
         this.name = 'block';
 
-        const block = outlinedBox(this.state.shape);
-        this.add(block);
+        const [geometries, material, offsets] = makeBlock(this.state.shape);
+        for (let geometry of geometries) {
+            const mesh = new Mesh(geometry, material);
+            const edgesGeometry = new EdgesGeometry(geometry);
+            const edgesMaterial = new LineBasicMaterial( { color: 0x000000, linewidth: 4 } );
+            const edges = new LineSegments(edgesGeometry, edgesMaterial);
+            mesh.add(edges);
 
-        this.position.x = Math.floor(Math.random()*10) - 4.5;
+            this.state.cubes.push(mesh);
+            this.add(mesh);
+        }
+        this.state.offsets = offsets;
+
+        this.position.x = -0.5;
         this.position.y = 9.5;
-
 
         // Add self to parent's update list
         parent.addToUpdateList(this);
@@ -171,7 +227,7 @@ class Block extends Group {
 
     update(timeStamp) {
         if (this.position.y > -9.5) {
-            this.state.continuousPos -= 0.01;
+            this.state.continuousPos -= 0.02;
             this.position.y = Math.ceil(this.state.continuousPos) - 0.5;
         }
     }
