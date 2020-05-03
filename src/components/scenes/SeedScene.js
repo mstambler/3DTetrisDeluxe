@@ -14,6 +14,7 @@ class SeedScene extends Scene {
             rotationSpeed: 1,
             updateList: [],
             curBlock: null,
+            board: [],
         };
 
         // Set background to a nice color
@@ -36,6 +37,10 @@ class SeedScene extends Scene {
         this.state.updateList.push(object);
     }
 
+    removeFromUpdateList() {
+        this.state.updateList.pop();
+    }
+
     update(timeStamp) {
         const { updateList } = this.state;
 
@@ -45,6 +50,15 @@ class SeedScene extends Scene {
         }
 
         if (this.state.curBlock.floored()) {
+            // update board with cubes
+            const x = this.state.curBlock.position.x;
+            const y = this.state.curBlock.position.y;
+            for (let i = 0; i < this.state.curBlock.state.cubes.length; i++) {
+                const offset = this.state.curBlock.state.offsets[i];
+                if(this.state.board[x + offset.x] === undefined) this.state.board[x + offset.x] = [];
+                this.state.board[x + offset.x][y + offset.y] = this.state.curBlock.state.cubes[i];
+            }
+
             const newBlock = new Block(this);
             this.state.curBlock = newBlock;
             this.add(newBlock);

@@ -163,6 +163,12 @@ class Block extends Group {
         for (let offset of this.state.offsets) {
             if (this.position.y + offset.y < -9) {
                 this.state.floored = true;
+                this.parent.removeFromUpdateList();
+                return;
+            }
+            else if (this.parent.state.board[this.position.x + offset.x] != undefined && this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y - 1] != undefined) {
+                this.state.floored = true;
+                this.parent.removeFromUpdateList();
                 return;
             }
         }
@@ -177,6 +183,9 @@ class Block extends Group {
                     if (this.position.x + offset.x < -4) {
                         return;
                     }
+                    else if (this.parent.state.board[this.position.x + offset.x - 1] != undefined && this.parent.state.board[this.position.x + offset.x - 1][this.position.y + offset.y] != undefined) {
+                        return;
+                    }
                 }
                 this.position.x = this.position.x - 1;
                 break;
@@ -185,31 +194,52 @@ class Block extends Group {
                     if (this.position.x + offset.x > 4) {
                         return;
                     }
+                    else if (this.parent.state.board[this.position.x + offset.x + 1] != undefined && this.parent.state.board[this.position.x + offset.x + 1][this.position.y + offset.y] != undefined) {
+                        return;
+                    }
                 }
                 this.position.x = this.position.x + 1;
                 break;
             case "ArrowDown":
-                for (let offset of this.state.offsets) {
+                /*for (let offset of this.state.offsets) {
                     if (this.position.y + offset.y < -9) {
                         this.state.floored = true;
                         return;
                     }
-                }
+                }*/
                 this.state.continuousPos = this.state.continuousPos - 1;
                 this.position.y = this.position.y - 1;
                 break;
             case " ":
                 let minY = this.position.y;
+                let drop = -9.5;
                 for (let offset of this.state.offsets) {
-                    if (this.position.y + offset.y < -9) {
-                        this.state.floored = true;
-                        return;
-                    }
-                    if (this.position.y + offset.y < minY) {
-                        minY = this.position.y + offset.y;
+
+                    // check for blocks below
+                    if (this.parent.state.board[this.position.x + offset.x] != undefined) {
+                        for (let i = 0; this.position.y + offset.y - i > -9.5; i++) {
+                            if (this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y - i] != undefined) {
+                                // if block below, update drop and minY
+                                if (this.position.y + offset.y - i + 1 >= drop) {
+                                    drop = this.position.y + offset.y - i + 1;
+                                    minY = Math.min(minY, this.position.y + offset.y);
+                                }
+                                break;
+                            }
+                        }
                     }
                 }
-                const dist = minY + 9.5;
+                // if no blocks below, find y closest to ground
+                if (drop == -9.5) {
+                    for (let offset of this.state.offsets) {
+                        // check distance to ground
+                        if (this.position.y + offset.y < minY) {
+                            minY = this.position.y + offset.y;
+                        }
+                    }
+                }
+                // move down
+                const dist = minY - drop;
                 this.state.continuousPos -= dist;
                 this.position.y -= dist;
                 break;
