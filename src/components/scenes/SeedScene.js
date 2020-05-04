@@ -68,6 +68,41 @@ class SeedScene extends Scene {
                 this.state.board[x + offset.x][y + offset.y] = this.state.curBlock.state.cubes[i];
             }
 
+            for (let i = 9.5; i > -10; i -= 1) {
+                let count = 0;
+                for (let j = 4.5; j > -5; j -= 1) {
+                    if (this.state.board[j][i] != undefined) {
+                        count += 1;
+                    }
+                }
+                if (count == 10) {
+                    // remove row
+                    for (let j = -4.5; j < 5; j += 1) {
+                        const cube = this.state.board[j][i];
+                        cube.parent.remove(cube);
+                    }
+                    // shift rows down
+                    debugger;
+                    // go through all rows including and above i
+                    for (let k = i; k < 10; k += 1) {
+                        for (let j = -4.5; j < 5; j += 1) {
+                            // THIS IS NOT WORKING
+                            var object = this.state.board[j][k + 1];
+                            this.state.board[j][k] = this.state.board[j][k + 1];
+                            if (this.state.board[j][k] != undefined) {
+                                this.state.board[j][k].geometry.translate(0, -1, 0);
+                            }
+                        }
+                    }
+                    //i -= 1;
+                }
+            }
+            //debugger;
+            //var object = this.state.curBlock.state.cubes[0];
+            //var dad = this.state.curBlock.state.cubes[0].parent;
+            //dad.remove(object);
+
+
             const newBlock = new Block(this);
             this.state.curBlock = newBlock;
             this.add(newBlock);
