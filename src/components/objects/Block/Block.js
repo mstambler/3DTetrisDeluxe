@@ -160,20 +160,21 @@ class Block extends Group {
     }
 
     update(timeStamp) {
+        this.state.continuousPos -= 0.02;
+        this.position.y = Math.ceil(this.state.continuousPos) - 0.5;
+
         for (let offset of this.state.offsets) {
             if (this.position.y + offset.y < -9) {
                 this.state.floored = true;
                 this.parent.removeFromUpdateList();
                 return;
             }
-            else if (this.parent.state.board[this.position.x + offset.x] != undefined && this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y - 1] != undefined) {
+            if (this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y - 1] !== undefined) {
                 this.state.floored = true;
                 this.parent.removeFromUpdateList();
                 return;
             }
         }
-        this.state.continuousPos -= 0.02;
-        this.position.y = Math.ceil(this.state.continuousPos) - 0.5;
     }
 
     blockArrow(key) {
@@ -183,65 +184,47 @@ class Block extends Group {
                     if (this.position.x + offset.x < -4) {
                         return;
                     }
-                    else if (this.parent.state.board[this.position.x + offset.x - 1] != undefined && this.parent.state.board[this.position.x + offset.x - 1][this.position.y + offset.y] != undefined) {
+                    if (this.parent.state.board[this.position.x + offset.x - 1][this.position.y + offset.y] !== undefined) {
                         return;
                     }
                 }
-                this.position.x = this.position.x - 1;
+                this.position.x -= 1;
                 break;
             case "ArrowLeft":
                 for (let offset of this.state.offsets) {
                     if (this.position.x + offset.x > 4) {
                         return;
                     }
-                    else if (this.parent.state.board[this.position.x + offset.x + 1] != undefined && this.parent.state.board[this.position.x + offset.x + 1][this.position.y + offset.y] != undefined) {
+                    if (this.parent.state.board[this.position.x + offset.x + 1][this.position.y + offset.y] !== undefined) {
                         return;
                     }
                 }
-                this.position.x = this.position.x + 1;
+                this.position.x += 1;
                 break;
             case "ArrowDown":
-                /*for (let offset of this.state.offsets) {
-                    if (this.position.y + offset.y < -9) {
-                        this.state.floored = true;
-                        return;
-                    }
-                }*/
-                this.state.continuousPos = this.state.continuousPos - 1;
-                this.position.y = this.position.y - 1;
+                this.state.continuousPos -= 1;
+                this.position.y -= 1;
                 break;
             case " ":
-                let minY = this.position.y;
-                let drop = -9.5;
+                //debugger;
+                let minDropDist = this.position.y + 9.5;
                 for (let offset of this.state.offsets) {
-
                     // check for blocks below
-                    if (this.parent.state.board[this.position.x + offset.x] != undefined) {
-                        for (let i = 0; this.position.y + offset.y - i > -9.5; i++) {
-                            if (this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y - i] != undefined) {
-                                // if block below, update drop and minY
-                                if (this.position.y + offset.y - i + 1 >= drop) {
-                                    drop = this.position.y + offset.y - i + 1;
-                                    minY = Math.min(minY, this.position.y + offset.y);
-                                }
-                                break;
+                    for (let y = this.position.y + offset.y - 1; y > -10; y--) {
+                        if (this.parent.state.board[this.position.x + offset.x][y] !== undefined) {
+                            // found the block it would intersect
+                            if (this.position.y + offset.y - y - 1 < minDropDist) {
+                                minDropDist = this.position.y + offset.y - y - 1;
                             }
+                            break;
                         }
                     }
+                    minDropDist = Math.min(minDropDist, this.position.y + offset.y + 9.5);
                 }
-                // if no blocks below, find y closest to ground
-                if (drop == -9.5) {
-                    for (let offset of this.state.offsets) {
-                        // check distance to ground
-                        if (this.position.y + offset.y < minY) {
-                            minY = this.position.y + offset.y;
-                        }
-                    }
-                }
+
                 // move down
-                const dist = minY - drop;
-                this.state.continuousPos -= dist;
-                this.position.y -= dist;
+                this.state.continuousPos -= minDropDist;
+                this.position.y -= minDropDist;
                 break;
             case "ArrowUp":
                 if (this.state.shape > 1) {
@@ -253,21 +236,20 @@ class Block extends Group {
                     }
 
                     for (let offset of this.state.offsets) {
-                        // check to the right
-                        if (this.position.x + offset.x < -4.5) {
+                        if (this.position.x + offset.x < -4.5) { // check right
                             this.position.x += 1;
                             return;
-                        } else if (this.position.x + offset.x > 4.5) {
+                        } else if (this.position.x + offset.x > 4.5) { // check left
                             this.position.x -= 1;
                             return;
                         }
-                        if (this.position.y + offset.y > 9.5) {
+                        if (this.position.y + offset.y > 9.5) { // check up
                             this.position.y -= 1;
                             this.state.continuousPos -= 1;
                             return;
                         }
                     }
-                } else if (this.state.shape == 1) {
+                } else if (this.state.shape == 1) { // I block
                     if (this.state.offsets[1].y == 0) { // horizontal
                         this.rotateZ(Math.PI / 2);
                         for (let offset of this.state.offsets) {

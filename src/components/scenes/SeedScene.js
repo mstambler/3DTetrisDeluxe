@@ -14,11 +14,21 @@ class SeedScene extends Scene {
             rotationSpeed: 1,
             updateList: [],
             curBlock: null,
+            width: 10,
+            height: 20,
             board: [],
         };
 
         // Set background to a nice color
         this.background = new Color(0x7ec0ee);
+
+        // Create grid
+        for (let i = -4.5; i < 5; i += 1) {
+            this.state.board[i] = [];
+            for (let j = -9.5; j < 10; j += 1) {
+                this.state.board[i][j] = undefined;
+            }
+        }
 
         // Add meshes to scene
         const floor = new Floor(this);
@@ -55,7 +65,6 @@ class SeedScene extends Scene {
             const y = this.state.curBlock.position.y;
             for (let i = 0; i < this.state.curBlock.state.cubes.length; i++) {
                 const offset = this.state.curBlock.state.offsets[i];
-                if(this.state.board[x + offset.x] === undefined) this.state.board[x + offset.x] = [];
                 this.state.board[x + offset.x][y + offset.y] = this.state.curBlock.state.cubes[i];
             }
 
