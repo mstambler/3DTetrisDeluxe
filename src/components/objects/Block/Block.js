@@ -160,9 +160,6 @@ class Block extends Group {
     }
 
     update(timeStamp) {
-        this.state.continuousPos -= 0.02;
-        this.position.y = Math.ceil(this.state.continuousPos) - 0.5;
-
         for (let offset of this.state.offsets) {
             if (this.position.y + offset.y < -9) {
                 this.state.floored = true;
@@ -175,6 +172,9 @@ class Block extends Group {
                 return;
             }
         }
+
+        this.state.continuousPos -= 0.02;
+        this.position.y = Math.ceil(this.state.continuousPos) - 0.5;
     }
 
     blockArrow(key) {
