@@ -44,9 +44,9 @@ class Block extends Group {
             case 0: { // O
                 material = new MeshPhongMaterial({color: 0xfcff4a});
     
-                geometries[1].translate(-1, 0, 0);
+                /*geometries[1].translate(-1, 0, 0);
                 geometries[2].translate(0, -1, 0);
-                geometries[3].translate(-1, -1, 0);
+                geometries[3].translate(-1, -1, 0);*/
     
                 this.state.offsets = [
                     {x: 0, y: 0},
@@ -59,9 +59,9 @@ class Block extends Group {
             case 1: { // I
                 material = new MeshPhongMaterial({color: 0x40fcff});
     
-                geometries[1].translate(-1, 0, 0);
+                /*geometries[1].translate(-1, 0, 0);
                 geometries[2].translate(-2, 0, 0);
-                geometries[3].translate(-3, 0, 0);
+                geometries[3].translate(-3, 0, 0);*/
     
                 this.state.offsets = [
                     {x: 0, y: 0},
@@ -74,9 +74,9 @@ class Block extends Group {
             case 2: { // S
                 material = new MeshPhongMaterial({color: 0xff0000});
     
-                geometries[1].translate(-1, 0, 0);
+                /*geometries[1].translate(-1, 0, 0);
                 geometries[2].translate(0, -1, 0);
-                geometries[3].translate(1, -1, 0);
+                geometries[3].translate(1, -1, 0);*/
     
                 this.state.offsets = [
                     {x: 0, y: 0},
@@ -89,9 +89,9 @@ class Block extends Group {
             case 3: { // Z
                 material = new MeshPhongMaterial({color: 0x24ab27});
     
-                geometries[1].translate(1, 0, 0);
+                /*geometries[1].translate(1, 0, 0);
                 geometries[2].translate(0, -1, 0);
-                geometries[3].translate(-1, -1, 0);
+                geometries[3].translate(-1, -1, 0);*/
     
                 this.state.offsets = [
                     {x: 0, y: 0},
@@ -104,9 +104,9 @@ class Block extends Group {
             case 4: { // L
                 material = new MeshPhongMaterial({color: 0xcf7f00});
     
-                geometries[1].translate(1, 0, 0);
+                /*geometries[1].translate(1, 0, 0);
                 geometries[2].translate(1, -1, 0);
-                geometries[3].translate(-1, 0, 0);
+                geometries[3].translate(-1, 0, 0);*/
     
                 this.state.offsets = [
                     {x: 0, y: 0},
@@ -119,9 +119,9 @@ class Block extends Group {
             case 5: { // J
                 material = new MeshPhongMaterial({color: 0x121db8});
     
-                geometries[1].translate(-1, 0, 0);
+                /*geometries[1].translate(-1, 0, 0);
                 geometries[2].translate(-1, -1, 0);
-                geometries[3].translate(1, 0, 0);
+                geometries[3].translate(1, 0, 0);*/
     
                 this.state.offsets = [
                     {x: 0, y: 0},
@@ -134,9 +134,9 @@ class Block extends Group {
             case 6: { // T
                 material = new MeshPhongMaterial({color: 0x8d0fb8});
     
-                geometries[1].translate(1, 0, 0);
+                /*geometries[1].translate(1, 0, 0);
                 geometries[2].translate(-1, 0, 0);
-                geometries[3].translate(0, -1, 0);
+                geometries[3].translate(0, -1, 0);*/
     
                 this.state.offsets = [
                     {x: 0, y: 0},
@@ -148,8 +148,11 @@ class Block extends Group {
             }
         }
 
-        for (let geometry of geometries) {
+        for (let i = 0; i < geometries.length; i++) {
+            const geometry = geometries[i];
             const mesh = new Mesh(geometry, material);
+            mesh.translateX(this.state.offsets[i].x);
+            mesh.translateY(this.state.offsets[i].y);
             const edgesGeometry = new EdgesGeometry(geometry);
             const edgesMaterial = new LineBasicMaterial({color: 0x000000, linewidth: 4});
             const edges = new LineSegments(edgesGeometry, edgesMaterial);
@@ -206,7 +209,6 @@ class Block extends Group {
                 this.position.y -= 1;
                 break;
             case " ":
-                //debugger;
                 let minDropDist = this.position.y + 9.5;
                 for (let offset of this.state.offsets) {
                     // check for blocks below
@@ -228,13 +230,19 @@ class Block extends Group {
                 break;
             case "ArrowUp":
                 if (this.state.shape > 1) {
-                    this.rotateZ(Math.PI / 2);
-                    for (let offset of this.state.offsets) {
-                        const x = offset.x;
-                        offset.x = -1*offset.y;
-                        offset.y = x;
+                    //this.rotateZ(Math.PI / 2);
+                    for (let i = 0; i < this.state.offsets.length; i++) {
+                        
+                        const x = this.state.offsets[i].x;
+                        this.state.offsets[i].x = -1*this.state.offsets[i].y;
+                        let cube = this.state.cubes[i];
+                        this.state.offsets[i].y = x;
+
+                        this.state.cubes[i].position.x = this.state.offsets[i].x;
+                        this.state.cubes[i].position.y = this.state.offsets[i].y;
                     }
 
+                    // ADD CHECKS FOR BLOCK
                     for (let offset of this.state.offsets) {
                         if (this.position.x + offset.x < -4.5) { // check right
                             this.position.x += 1;
@@ -251,10 +259,13 @@ class Block extends Group {
                     }
                 } else if (this.state.shape == 1) { // I block
                     if (this.state.offsets[1].y == 0) { // horizontal
-                        this.rotateZ(Math.PI / 2);
-                        for (let offset of this.state.offsets) {
-                            offset.y = offset.x;
-                            offset.x = 0;
+                        //this.rotateZ(Math.PI / 2);
+                        for (let i = 0; i < this.state.offsets.length; i++) {
+                            this.state.offsets[i].y = this.state.offsets[i].x;
+                            this.state.offsets[i].x = 0;
+
+                            this.state.cubes[i].position.x = this.state.offsets[i].x;
+                            this.state.cubes[i].position.y = this.state.offsets[i].y;
                         }
                         for (let offset of this.state.offsets) {
                             // check down
@@ -266,10 +277,13 @@ class Block extends Group {
                             this.state.continuousPos += dist;
                         }
                     } else { // vertical
-                        this.rotateZ(-Math.PI / 2);
-                        for (let offset of this.state.offsets) {
-                            offset.x = offset.y;
-                            offset.y = 0;
+                        //this.rotateZ(-Math.PI / 2);
+                        for (let i = 0; i < this.state.offsets.length; i++) {
+                            this.state.offsets[i].x = this.state.offsets[i].y;
+                            this.state.offsets[i].y = 0;
+
+                            this.state.cubes[i].position.x = this.state.offsets[i].x;
+                            this.state.cubes[i].position.y = this.state.offsets[i].y;
                         }
                         for (let offset of this.state.offsets) {
                             // check to the right
