@@ -228,6 +228,7 @@ class Block extends Group {
                 // move down
                 this.state.continuousPos -= minDropDist;
                 this.position.y -= minDropDist;
+                this.floor();
                 break;
             case "ArrowUp":
                 // THIS SHIT IS FUCKED STILL
