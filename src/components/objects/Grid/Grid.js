@@ -1,4 +1,4 @@
-import { Group, Vector3, LineBasicMaterial, BufferGeometry, LineSegments } from 'three';
+import { Group, Vector3, LineDashedMaterial, BufferGeometry, LineSegments } from 'three';
 
 class Grid extends Group {
     constructor(parent) {
@@ -15,32 +15,34 @@ class Grid extends Group {
         // Make lines
         const width = 10;
         const height = 20;
+        const z = 0.5;
+
         const points = [];
         for (let i = 0; i < width + 1; i++) {
             for (let j = 0; j < height + 1; j++) {
                 const x = i - width/2;
-                points.push(new Vector3(x, j, -0.5));
-                points.push(new Vector3(x, j, 0.5));
+                points.push(new Vector3(x, j, -z));
+                points.push(new Vector3(x, j, z));
             }
         }
 
         for (let j = 0; j < height + 1; j++) {
-            points.push(new Vector3(-width/2, j, -0.5));
-            points.push(new Vector3(width/2, j, -0.5));
-            points.push(new Vector3(-width/2, j, 0.5));
-            points.push(new Vector3(width/2, j, 0.5));
+            points.push(new Vector3(-width/2, j, -z));
+            points.push(new Vector3(width/2, j, -z));
+            points.push(new Vector3(-width/2, j, z));
+            points.push(new Vector3(width/2, j, z));
         }
 
         for (let i = 0; i < width + 1; i++) {
             const x = i - width/2;
-            points.push(new Vector3(x, 0, -0.5));
-            points.push(new Vector3(x, height, -0.5));
-            points.push(new Vector3(x, 0, 0.5));
-            points.push(new Vector3(x, height, 0.5));
+            points.push(new Vector3(x, 0, -z));
+            points.push(new Vector3(x, height, -z));
+            points.push(new Vector3(x, 0, z));
+            points.push(new Vector3(x, height, z));
         }
 
         const lineGeometry = new BufferGeometry().setFromPoints(points);
-        const lineMaterial = new LineBasicMaterial({color: 0xffffff});
+        const lineMaterial = new LineDashedMaterial({color: 0xffffff});
         const lines = new LineSegments(lineGeometry, lineMaterial);
 
         // add to mesh

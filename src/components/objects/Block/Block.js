@@ -155,7 +155,7 @@ class Block extends Group {
                         this.floor();
                         return;
                     }
-                } else if (this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y - 1] !== undefined){
+                } else if (this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y - 1] !== undefined) {
                     // still above a block
                     blocked = true;
                     const ceilPos = Math.ceil(this.state.continuousPos + offset.y) - 0.5;
@@ -231,7 +231,6 @@ class Block extends Group {
                 this.floor();
                 break;
             case "ArrowUp":
-                // THIS SHIT IS FUCKED STILL
                 if (this.state.shape > 1) {
                     const newOffsets = [];
                     for (let i = 0; i < this.state.offsets.length; i++) {
@@ -255,21 +254,48 @@ class Block extends Group {
 
                         if (this.position.y + offset.y > 9.5) { // check up
                             collideUp = true;
-                        } else if (this.position.x + offset.x < -9.5) { // check down
+                        } else if (this.position.y + offset.y < -9.5) { // check down
                             collideDown = true;
                         }
 
-                        // check block collisions
+                        // check block collisions, but not if the block is currently in a wall collision
+                        if (this.position.x + offset.x < -4.5 || this.position.x + offset.x > 4.5) continue;
                         if (this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y] !== undefined) {
                             if (offset.x < 0) collideRight = true;
                             if (offset.x > 0) collideLeft = true;
-                            // if (offset.y < 0) collideDown = true;
-                            // if (offset.y > 0) collideUp = true;
+                            if (offset.y < 0) collideDown = true;
+                            if (offset.y > 0) collideUp = true;
                         }
                     }
 
                     if (collideRight && collideLeft) return;
                     if (collideUp && collideDown) return;
+
+                    if (collideRight) {
+                        for (let offset of newOffsets) {
+                            if (this.parent.state.board[this.position.x + offset.x + 1][this.position.y + offset.y] !== undefined) {
+                                return;
+                            }
+                        }
+                        this.position.x += 1;
+                    } else if (collideLeft) {
+                        for (let offset of newOffsets) {
+                            if (this.parent.state.board[this.position.x + offset.x - 1][this.position.y + offset.y] !== undefined) {
+                                return;
+                            }
+                        }
+                        this.position.x -= 1;
+                    }
+
+                    if (collideDown) {
+                        if (!collideLeft && !collideRight) {
+                            this.position.y += 1;
+                            this.state.continuousPos += 1;
+                        }
+                    } else if (collideUp) { // pretty sure this is only needed for blocks at the very top
+                        this.position.y -= 1;
+                        this.state.continuousPos -= 1;
+                    }
 
                     for (let i = 0; i < this.state.offsets.length; i++) {
                         // update offsets
@@ -279,18 +305,6 @@ class Block extends Group {
                         // update relative positions
                         this.state.cubes[i].position.x = this.state.offsets[i].x;
                         this.state.cubes[i].position.y = this.state.offsets[i].y;
-                    }
-
-
-                    if (collideRight) this.position.x += 1;
-                    if (collideLeft) this.position.x -= 1;
-                    if (collideDown) {
-                        this.position.y += 1;
-                        this.state.continuousPos += 1;
-                    }
-                    if (collideUp) {
-                        this.position.y -= 1;
-                        this.state.continuousPos -= 1;
                     }
                 } else if (this.state.shape == 1) { // I block
                     if (this.state.offsets[0].y == 0) { // horizontal
@@ -313,7 +327,6 @@ class Block extends Group {
                             this.state.continuousPos += dist;
                         }
                     } else { // vertical
-                        //debugger;
                         for (let i = 0; i < this.state.offsets.length; i++) {
                             this.state.offsets[i].x = this.state.offsets[i].y;
                             this.state.offsets[i].y = 0;

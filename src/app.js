@@ -60,7 +60,7 @@ window.addEventListener('resize', windowResizeHandler, false);
 
 
 const windowKeyHandler = (event) => {
-    const keys = ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", " "]
+    const keys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', ' ']
     if (keys.includes(event.key)) {
         scene.arrow(event.key);
     }
