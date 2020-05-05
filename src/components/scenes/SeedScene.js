@@ -64,6 +64,16 @@ class SeedScene extends Scene {
         this.add(newBlock);
     }
 
+    gameOver() {
+        const cur = this.state.curBlock;
+        for (let offset of cur.state.offsets) {
+            if (cur.position.y + offset.y > 9.5) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     updateBlock() {
         // update board with cubes
         const x = this.state.curBlock.position.x;
@@ -100,7 +110,13 @@ class SeedScene extends Scene {
                 }
             }
         }
-        this.addBlock();
+        const game_over = this.gameOver();
+        if (!game_over) {
+            this.addBlock();
+        }
+        else {
+            alert("Game over!")
+        }
     }
 
     addToUpdateList(object) {
