@@ -11,8 +11,7 @@ class SeedScene extends Scene {
         // Init state
         this.state = {
             gui: new Dat.GUI(), // Create GUI for scene
-            Start: 
-                this.startGame.bind(this),
+            Start: this.startGame.bind(this),
             updateList: [],
             curBlock: null,
             width: 10,
@@ -22,8 +21,6 @@ class SeedScene extends Scene {
 
         // Set background to a nice color
         this.background = new Color(0x7ec0ee);
-
-        
 
         // Add meshes to scene
         const floor = new Floor(this);
@@ -75,6 +72,12 @@ class SeedScene extends Scene {
     }
 
     updateBlock() {
+        // check for game over
+        if (this.gameOver()) {
+            alert("Game over!");
+            return;
+        }
+
         // update board with cubes
         const x = this.state.curBlock.position.x;
         const y = this.state.curBlock.position.y;
@@ -110,13 +113,7 @@ class SeedScene extends Scene {
                 }
             }
         }
-        const game_over = this.gameOver();
-        if (!game_over) {
-            this.addBlock();
-        }
-        else {
-            alert("Game over!")
-        }
+        this.addBlock();
     }
 
     addToUpdateList(object) {

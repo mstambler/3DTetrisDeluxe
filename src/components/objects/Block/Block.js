@@ -22,7 +22,7 @@ class Block extends Group {
         // starting position
         this.position.x = 0.5;
         this.position.y = 9.5;
-        
+
         for (let offset of this.state.offsets) {
             if (parent.state.board[this.position.x + offset.x][this.position.y + offset.y] !== undefined) {
                 this.position.y += 1;
