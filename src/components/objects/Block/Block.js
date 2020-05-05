@@ -13,7 +13,7 @@ class Block extends Group {
             continuousPos: 10,
             cubes: [],
             offsets: [],
-            floored: false,
+            paused: false,
         };
 
         this.name = 'block';
@@ -33,21 +33,10 @@ class Block extends Group {
     }
 
     makeBlock(shape) {
-        // Each block is made up of 4 cubes
-        const geometries = [];
-        for (let i = 0; i < 4; i++) {
-            geometries.push(new BoxBufferGeometry(1, 1, 1));
-        }
         let material;
-    
         switch(shape) {
             case 0: { // O
                 material = new MeshPhongMaterial({color: 0xfcff4a});
-    
-                /*geometries[1].translate(-1, 0, 0);
-                geometries[2].translate(0, -1, 0);
-                geometries[3].translate(-1, -1, 0);*/
-    
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: -1, y: 0},
@@ -58,26 +47,16 @@ class Block extends Group {
             }
             case 1: { // I
                 material = new MeshPhongMaterial({color: 0x40fcff});
-    
-                /*geometries[1].translate(-1, 0, 0);
-                geometries[2].translate(-2, 0, 0);
-                geometries[3].translate(-3, 0, 0);*/
-    
                 this.state.offsets = [
+                    {x: 1, y: 0},
                     {x: 0, y: 0},
                     {x: -1, y: 0},
-                    {x: -2, y: 0},
-                    {x: -3, y: 0}
+                    {x: -2, y: 0}
                 ];
                 break;
             }
             case 2: { // S
-                material = new MeshPhongMaterial({color: 0xff0000});
-    
-                /*geometries[1].translate(-1, 0, 0);
-                geometries[2].translate(0, -1, 0);
-                geometries[3].translate(1, -1, 0);*/
-    
+                material = new MeshPhongMaterial({color: 0xff0000}); 
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: -1, y: 0},
@@ -88,11 +67,6 @@ class Block extends Group {
             }
             case 3: { // Z
                 material = new MeshPhongMaterial({color: 0x24ab27});
-    
-                /*geometries[1].translate(1, 0, 0);
-                geometries[2].translate(0, -1, 0);
-                geometries[3].translate(-1, -1, 0);*/
-    
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: 1, y: 0},
@@ -103,11 +77,6 @@ class Block extends Group {
             }
             case 4: { // L
                 material = new MeshPhongMaterial({color: 0xcf7f00});
-    
-                /*geometries[1].translate(1, 0, 0);
-                geometries[2].translate(1, -1, 0);
-                geometries[3].translate(-1, 0, 0);*/
-    
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: 1, y: 0},
@@ -118,11 +87,6 @@ class Block extends Group {
             }
             case 5: { // J
                 material = new MeshPhongMaterial({color: 0x121db8});
-    
-                /*geometries[1].translate(-1, 0, 0);
-                geometries[2].translate(-1, -1, 0);
-                geometries[3].translate(1, 0, 0);*/
-    
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: -1, y: 0},
@@ -133,11 +97,6 @@ class Block extends Group {
             }
             case 6: { // T
                 material = new MeshPhongMaterial({color: 0x8d0fb8});
-    
-                /*geometries[1].translate(1, 0, 0);
-                geometries[2].translate(-1, 0, 0);
-                geometries[3].translate(0, -1, 0);*/
-    
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: 1, y: 0},
@@ -148,36 +107,70 @@ class Block extends Group {
             }
         }
 
-        for (let i = 0; i < geometries.length; i++) {
-            const geometry = geometries[i];
+        const geometry = new BoxBufferGeometry(1, 1, 1);
+        for (let i = 0; i < this.state.offsets.length; i++) {
+            // make cube and translate
             const mesh = new Mesh(geometry, material);
             mesh.translateX(this.state.offsets[i].x);
             mesh.translateY(this.state.offsets[i].y);
+
+            // make outline
             const edgesGeometry = new EdgesGeometry(geometry);
             const edgesMaterial = new LineBasicMaterial({color: 0x000000, linewidth: 4});
             const edges = new LineSegments(edgesGeometry, edgesMaterial);
             mesh.add(edges);
+
+            // add to block
             this.state.cubes.push(mesh);
             this.add(mesh);
         }
     }
 
+    floor() {
+        this.parent.removeFromUpdateList();
+        this.parent.updateBlock();
+    }
+
     update(timeStamp) {
-        for (let offset of this.state.offsets) {
-            if (this.position.y + offset.y < -9) {
-                this.state.floored = true;
-                this.parent.removeFromUpdateList();
-                return;
+        if (!this.state.paused) { // hasn't hit floor or object yet
+            for (let offset of this.state.offsets) {
+                if (this.position.y + offset.y < -9) {
+                    this.state.paused = true;
+                    break;
+                }
+                if (this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y - 1] !== undefined) {
+                    this.state.paused = true;
+                    break;
+                }
             }
-            if (this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y - 1] !== undefined) {
-                this.state.floored = true;
-                this.parent.removeFromUpdateList();
-                return;
+            this.state.continuousPos -= 0.02;
+            this.position.y = Math.ceil(this.state.continuousPos) - 0.5;
+        } else { // paused so it already hit floor or object
+            let blocked = false;
+            for (let offset of this.state.offsets) {
+                if (this.position.y + offset.y < -9) { // hit floor
+                    blocked = true;
+                    const ceilPos = Math.ceil(this.state.continuousPos + offset.y) - 0.5;
+                    if (ceilPos < -10) { // done moving
+                        this.floor();
+                        return;
+                    }
+                } else if (this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y - 1] !== undefined){
+                    // still above a block
+                    blocked = true;
+                    const ceilPos = Math.ceil(this.state.continuousPos + offset.y) - 0.5;
+                    if (ceilPos < this.position.y + offset.y - 0.5) { // done moving
+                        this.floor();
+                        return;
+                    }
+                }
+            }
+            this.state.continuousPos -= 0.02;
+            if (!blocked) { // used to be blocked but is now free
+                this.state.paused = false;
+                this.position.y = Math.ceil(this.state.continuousPos) - 0.5;
             }
         }
-
-        this.state.continuousPos -= 0.02;
-        this.position.y = Math.ceil(this.state.continuousPos) - 0.5;
     }
 
     blockArrow(key) {
@@ -205,6 +198,14 @@ class Block extends Group {
                 this.position.x += 1;
                 break;
             case "ArrowDown":
+                for (let offset of this.state.offsets) {
+                    if (this.position.y + offset.y < -9) {
+                        return;
+                    }
+                    if (this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y - 1] !== undefined) {
+                        return;
+                    }
+                }
                 this.state.continuousPos -= 1;
                 this.position.y -= 1;
                 break;
@@ -229,37 +230,69 @@ class Block extends Group {
                 this.position.y -= minDropDist;
                 break;
             case "ArrowUp":
+                // THIS SHIT IS FUCKED STILL
                 if (this.state.shape > 1) {
-                    //this.rotateZ(Math.PI / 2);
+                    const newOffsets = [];
                     for (let i = 0; i < this.state.offsets.length; i++) {
-                        
-                        const x = this.state.offsets[i].x;
-                        this.state.offsets[i].x = -1*this.state.offsets[i].y;
-                        let cube = this.state.cubes[i];
-                        this.state.offsets[i].y = x;
+                        // update offsets
+                        newOffsets[i] = {};
+                        newOffsets[i].x = -1*this.state.offsets[i].y;
+                        newOffsets[i].y = this.state.offsets[i].x;
+                    }
 
+                    // check for collisions
+                    let collideRight = false;
+                    let collideLeft = false;
+                    let collideUp = false;
+                    let collideDown = false;
+                    for (let offset of newOffsets) {
+                        if (this.position.x + offset.x < -4.5) { // check right
+                            collideRight = true;
+                        } else if (this.position.x + offset.x > 4.5) { // check left
+                            collideLeft = true;
+                        }
+
+                        if (this.position.y + offset.y > 9.5) { // check up
+                            collideUp = true;
+                        } else if (this.position.x + offset.x < -9.5) { // check down
+                            collideDown = true;
+                        }
+
+                        // check block collisions
+                        if (this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y] !== undefined) {
+                            if (offset.x < 0) collideRight = true;
+                            if (offset.x > 0) collideLeft = true;
+                            // if (offset.y < 0) collideDown = true;
+                            // if (offset.y > 0) collideUp = true;
+                        }
+                    }
+
+                    if (collideRight && collideLeft) return;
+                    if (collideUp && collideDown) return;
+
+                    for (let i = 0; i < this.state.offsets.length; i++) {
+                        // update offsets
+                        this.state.offsets[i].x = newOffsets[i].x;
+                        this.state.offsets[i].y = newOffsets[i].y;
+
+                        // update relative positions
                         this.state.cubes[i].position.x = this.state.offsets[i].x;
                         this.state.cubes[i].position.y = this.state.offsets[i].y;
                     }
 
-                    // ADD CHECKS FOR BLOCK
-                    for (let offset of this.state.offsets) {
-                        if (this.position.x + offset.x < -4.5) { // check right
-                            this.position.x += 1;
-                            return;
-                        } else if (this.position.x + offset.x > 4.5) { // check left
-                            this.position.x -= 1;
-                            return;
-                        }
-                        if (this.position.y + offset.y > 9.5) { // check up
-                            this.position.y -= 1;
-                            this.state.continuousPos -= 1;
-                            return;
-                        }
+
+                    if (collideRight) this.position.x += 1;
+                    if (collideLeft) this.position.x -= 1;
+                    if (collideDown) {
+                        this.position.y += 1;
+                        this.state.continuousPos += 1;
+                    }
+                    if (collideUp) {
+                        this.position.y -= 1;
+                        this.state.continuousPos -= 1;
                     }
                 } else if (this.state.shape == 1) { // I block
-                    if (this.state.offsets[1].y == 0) { // horizontal
-                        //this.rotateZ(Math.PI / 2);
+                    if (this.state.offsets[0].y == 0) { // horizontal
                         for (let i = 0; i < this.state.offsets.length; i++) {
                             this.state.offsets[i].y = this.state.offsets[i].x;
                             this.state.offsets[i].x = 0;
@@ -268,16 +301,18 @@ class Block extends Group {
                             this.state.cubes[i].position.y = this.state.offsets[i].y;
                         }
                         for (let offset of this.state.offsets) {
-                            // check down
+                            // check up/down
                             let dist = 0;
                             if (this.position.y + offset.y < -9.5) {
                                 dist += 1;
+                            } else if (this.position.y + offset.y > 9.5) {
+                                dist -= 1;
                             }
                             this.position.y += dist;
                             this.state.continuousPos += dist;
                         }
                     } else { // vertical
-                        //this.rotateZ(-Math.PI / 2);
+                        //debugger;
                         for (let i = 0; i < this.state.offsets.length; i++) {
                             this.state.offsets[i].x = this.state.offsets[i].y;
                             this.state.offsets[i].y = 0;
@@ -286,10 +321,12 @@ class Block extends Group {
                             this.state.cubes[i].position.y = this.state.offsets[i].y;
                         }
                         for (let offset of this.state.offsets) {
-                            // check to the right
+                            // check left/right
                             let dist = 0;
                             if (this.position.x + offset.x < -4.5) {
                                 dist += 1;
+                            } else if (this.position.x + offset.x > 4.5) {
+                                dist -= 1;
                             }
                             this.position.x += dist;
                         }
@@ -297,10 +334,6 @@ class Block extends Group {
                 }
                 break;
         }
-    }
-
-    floored() {
-        return this.state.floored;
     }
 }
 
