@@ -87,7 +87,7 @@ class SeedScene extends Scene {
         // check for game over
         if (this.gameOver()) {
             this.state.curBlock = undefined;
-            
+
             const fontJson = require( "three/examples/fonts/optimer_bold.typeface.json" );
             const font = new Font( fontJson );
 
@@ -190,7 +190,9 @@ class SeedScene extends Scene {
     }
 
     arrow(key) {
-        this.state.curBlock.blockArrow(key);
+        if (this.state.curBlock != undefined) {
+            this.state.curBlock.blockArrow(key);
+        }
     }
 }
 
