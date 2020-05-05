@@ -37,25 +37,7 @@ class SeedScene extends Scene {
         this.add(floor, grid, lights);
 
         // create scorekeeper
-        const fontJson = require( "three/examples/fonts/optimer_bold.typeface.json" );
-        const font = new Font( fontJson );
-
-        var geometry = new TextGeometry( String('Score: ' + this.state.score + '\nHigh Score: ' + this.state.high_score), {
-            font: font,
-            size: 1,
-            height: 0.25,
-            curveSegments: 10,
-            bevelEnabled: false,
-        } );
-
-        const material = new MeshPhongMaterial({color: 0x1106a1});
-        const mesh = new Mesh(geometry, material);
-        mesh.rotateY(Math.PI);
-        mesh.position.x = -7;
-        mesh.position.y = 9;
-        this.score_keeper = mesh;
-        this.add(mesh);
-
+        this.updateScoreKeeper()
 
         // Populate GUI
         this.state.gui.add(this.state, 'Start');
@@ -226,7 +208,7 @@ class SeedScene extends Scene {
         const fontJson = require( "three/examples/fonts/optimer_bold.typeface.json" );
         const font = new Font( fontJson );
 
-        var geometry = new TextGeometry( String('Score: ' + this.state.score + '\nHigh Score: ' + this.state.high_score), {
+        var geometry = new TextGeometry( String('High Score: ' + this.state.high_score + '\nScore: ' + this.state.score + '\nLevel: ' + this.state.level), {
             font: font,
             size: 1,
             height: 0.25,
@@ -239,7 +221,8 @@ class SeedScene extends Scene {
         mesh.rotateY(Math.PI);
         mesh.position.x = -7;
         mesh.position.y = 9;
-        this.remove(this.score_keeper);
+
+        if (this.score_keeper != undefined) this.remove(this.score_keeper);
         this.score_keeper = mesh;
         this.add(mesh);
     }
