@@ -1,5 +1,5 @@
 import * as Dat from 'dat.gui';
-import { Scene, Color, Vector3 } from 'three';
+import { Scene, Color } from 'three';
 import { Block, Floor, Grid } from 'objects';
 import { BasicLights } from 'lights';
 
@@ -11,7 +11,8 @@ class SeedScene extends Scene {
         // Init state
         this.state = {
             gui: new Dat.GUI(), // Create GUI for scene
-            rotationSpeed: 1,
+            Start: 
+                this.startGame.bind(this),
             updateList: [],
             curBlock: null,
             width: 10,
@@ -22,26 +23,39 @@ class SeedScene extends Scene {
         // Set background to a nice color
         this.background = new Color(0x7ec0ee);
 
-        // Create grid
-        for (let i = -4.5; i < 5; i += 1) {
-            this.state.board[i] = [];
-            for (let j = -9.5; j < 10; j += 1) {
-                this.state.board[i][j] = undefined;
-            }
-        }
+        
 
         // Add meshes to scene
         const floor = new Floor(this);
         const grid = new Grid(this);
-        // const block = new Block(this);
-        // this.state.curBlock = block;
         const lights = new BasicLights();
         this.add(floor, grid, lights);
 
-        this.addBlock();
-
         // Populate GUI
-        this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
+        this.state.gui.add(this.state, 'Start');
+    }
+
+    startGame() {
+        if (this.state.curBlock != undefined) {
+            this.state.curBlock = undefined;
+            this.removeFromUpdateList();
+        }
+        // Create grid
+        for (let i = -4.5; i < 5; i += 1) {
+            if (this.state.board[i] == undefined) {
+                this.state.board[i] = [];
+            }
+            for (let j = -9.5; j < 10; j += 1) {
+                this.state.board[i][j] = undefined;
+            }
+        }
+        for (let i = this.children.length - 1; i >= 0; i--) {
+            const child = this.children[i];
+            if (child instanceof Block) {
+                this.remove(child);
+            }
+        }
+        this.addBlock();
     }
 
     addBlock() {
