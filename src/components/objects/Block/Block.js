@@ -20,13 +20,9 @@ class Block extends Group {
         this.makeBlock(this.state.shape);
         
         // starting position
-        if (this.state.shape == 1) {
-            this.position.x = 1.5;
-        }
-        else {
-            this.position.x = 0.5;
-        }
+        this.position.x = 0.5;
         this.position.y = 9.5;
+        
         for (let offset of this.state.offsets) {
             if (parent.state.board[this.position.x + offset.x][this.position.y + offset.y] !== undefined) {
                 this.position.y += 1;
