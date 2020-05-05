@@ -13,15 +13,17 @@ class Block extends Group {
             continuousPos: 10,
             cubes: [],
             offsets: [],
+            shadows: [],
             paused: false,
         };
 
-        this.name = 'block';
-        this.makeBlock(this.state.shape);
-        
         // starting position
         this.position.x = 0.5;
         this.position.y = 9.5;
+
+        this.name = 'block';
+        this.makeBlock(this.state.shape);
+        this.updateShadow(parent);
 
         for (let offset of this.state.offsets) {
             if (parent.state.board[this.position.x + offset.x][this.position.y + offset.y] !== undefined) {
@@ -122,13 +124,25 @@ class Block extends Group {
             const edges = new LineSegments(edgesGeometry, edgesMaterial);
             mesh.add(edges);
 
+            // make shadow
+            const shadowGeom = new EdgesGeometry(geometry);
+            const shadowMaterial = new LineBasicMaterial({color: material.color, linewidth: 4});
+            const shadow = new LineSegments(shadowGeom, shadowMaterial);
+            shadow.translateX(this.state.offsets[i].x);
+            shadow.translateY(this.state.offsets[i].y);
+            this.state.shadows.push(shadow);
+
             // add to block
             this.state.cubes.push(mesh);
             this.add(mesh);
+            this.add(shadow);
         }
     }
 
     floor() {
+        for (let shadow of this.state.shadows) {
+            this.remove(shadow);
+        }
         this.parent.removeFromUpdateList();
         this.parent.updateBlock();
     }
@@ -173,6 +187,30 @@ class Block extends Group {
                 this.position.y = Math.ceil(this.state.continuousPos) - 0.5;
             }
         }
+        this.updateShadow(this.parent);
+    }
+
+    updateShadow(parent) {
+        let minDropDist = this.position.y + 9.5;
+        for (let offset of this.state.offsets) {
+            // check for blocks below
+            for (let y = this.position.y + offset.y - 1; y > -10; y--) {
+                //debugger;
+                if (parent.state.board[this.position.x + offset.x][y] !== undefined) {
+                    // found the block it would intersect
+                    if (this.position.y + offset.y - y - 1 < minDropDist) {
+                        minDropDist = this.position.y + offset.y - y - 1;
+                    }
+                    break;
+                }
+            }
+            minDropDist = Math.min(minDropDist, this.position.y + offset.y + 9.5);
+        }
+        // move down
+        for (let i = 0; i < this.state.offsets.length; i++) {
+            this.state.shadows[i].position.x = this.state.offsets[i].x;
+            this.state.shadows[i].position.y = this.state.offsets[i].y - minDropDist;
+        }
     }
 
     blockArrow(key) {
@@ -210,6 +248,7 @@ class Block extends Group {
                 }
                 this.state.continuousPos -= 1;
                 this.position.y -= 1;
+                this.updateShadow(this.parent);
                 break;
             case " ":
                 let minDropDist = this.position.y + 9.5;
@@ -427,6 +466,7 @@ class Block extends Group {
                         }
                     }
                 }
+                this.updateShadow(this.parent);
                 break;
         }
     }
