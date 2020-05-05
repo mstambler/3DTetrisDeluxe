@@ -20,12 +20,7 @@ class Block extends Group {
         this.makeBlock(this.state.shape);
         
         // starting position
-        if (this.state.shape == 1) {
-            this.position.x = 1.5;
-        }
-        else {
-            this.position.x = 0.5;
-        }
+        this.position.x = 0.5;
         this.position.y = 9.5;
 
         // Add self to parent's update list
