@@ -159,7 +159,7 @@ class Block extends Group {
                     break;
                 }
             }
-            this.state.continuousPos -= 0.02;
+            this.state.continuousPos -= this.parent.state.speed;
             this.position.y = Math.ceil(this.state.continuousPos) - 0.5;
         } else { // paused so it already hit floor or object
             let blocked = false;
@@ -181,7 +181,7 @@ class Block extends Group {
                     }
                 }
             }
-            this.state.continuousPos -= 0.02;
+            this.state.continuousPos -= this.parent.state.speed;
             if (!blocked) { // used to be blocked but is now free
                 this.state.paused = false;
                 this.position.y = Math.ceil(this.state.continuousPos) - 0.5;
