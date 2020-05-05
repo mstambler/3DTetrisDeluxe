@@ -19,13 +19,14 @@ class SeedScene extends Scene {
             board: [],
             score: 0,
             level: 1,
+            speed: 0.02,
             rows: 0,
         };
 
         // Set background to a nice color
         this.background = new Color(0x7ec0ee);
 
-        this.row_points = [40, 100, 300, 1200];
+        this.rowPoints = [40, 100, 300, 1200];
 
         // Add meshes to scene
         const floor = new Floor(this);
@@ -88,17 +89,16 @@ class SeedScene extends Scene {
         if (this.gameOver()) {
             this.state.curBlock = undefined;
 
-            const fontJson = require( "three/examples/fonts/optimer_bold.typeface.json" );
-            const font = new Font( fontJson );
+            const fontJson = require("three/examples/fonts/optimer_bold.typeface.json");
+            const font = new Font(fontJson);
 
-            var geometry = new TextGeometry( 'GAME OVER', {
+            const geometry = new TextGeometry('GAME OVER', {
                 font: font,
                 size: 5,
                 height: 1,
                 curveSegments: 10,
                 bevelEnabled: false,
-            } );
-
+            });
             const material = new MeshPhongMaterial({color: 0x87071c});
             const mesh = new Mesh(geometry, material);
             mesh.rotateY(Math.PI);
@@ -106,19 +106,19 @@ class SeedScene extends Scene {
             mesh.position.z = -5;
             mesh.name = "game_over";
 
-            var score_geo = new TextGeometry( String("Score: " + this.state.score) , {
+            const scoreGeo = new TextGeometry( String("Score: " + this.state.score), {
                 font: font,
                 size: 3,
                 height: 1,
                 curveSegments: 10,
                 bevelEnabled: false,
-            } );
-            const material_score = new MeshPhongMaterial({color: 0x097025});
-            const mesh_score = new Mesh(score_geo, material_score);
-            mesh_score.position.x = 12;
-            mesh_score.position.y = -5;
+            });
+            const materialScore = new MeshPhongMaterial({color: 0x097025});
+            const meshScore = new Mesh(scoreGeo, materialScore);
+            meshScore.position.x = 12;
+            meshScore.position.y = -5;
 
-            mesh.add(mesh_score);
+            mesh.add(meshScore);
             this.add(mesh);
             return;
         }
@@ -131,7 +131,7 @@ class SeedScene extends Scene {
             this.state.board[x + offset.x][y + offset.y] = this.state.curBlock.state.cubes[i];
         }
 
-        let rows_cleared = 0;
+        let rowsCleared = 0;
         for (let i = 9.5; i > -10; i -= 1) {
             let count = 0;
             for (let j = 4.5; j > -5; j -= 1) {
@@ -140,7 +140,7 @@ class SeedScene extends Scene {
                 }
             }
             if (count == 10) {
-                rows_cleared += 1;
+                rowsCleared += 1;
                 // remove row
                 for (let j = -4.5; j < 5; j += 1) {
                     const cube = this.state.board[j][i];
@@ -151,21 +151,22 @@ class SeedScene extends Scene {
                 // go through all rows including and above i
                 for (let k = i; k < 10; k += 1) {
                     for (let j = -4.5; j < 5; j += 1) {
-                        const block_above = this.state.board[j][k + 1];
-                        this.state.board[j][k] = block_above;
-                        if (block_above != undefined) {
-                            block_above.translateY(-1);
+                        const blockAbove = this.state.board[j][k + 1];
+                        this.state.board[j][k] = blockAbove;
+                        if (blockAbove != undefined) {
+                            blockAbove.translateY(-1);
                         }
                     }
                 }
             }
         }
         // calculate score
-        if (rows_cleared > 0) {
-            this.state.rows += rows_cleared;
-            this.state.score += this.row_points[rows_cleared-1]*this.state.level;
+        if (rowsCleared > 0) {
+            this.state.rows += rowsCleared;
+            this.state.score += this.rowPoints[rowsCleared-1]*this.state.level;
             if (parseInt(this.state.rows/10) > this.state.level - 1) {
                 this.state.level += 1;
+                this.state.speed += 0.01;
             }
         }
 
