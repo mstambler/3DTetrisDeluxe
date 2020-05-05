@@ -18,10 +18,14 @@ class SeedScene extends Scene {
             height: 20,
             board: [],
             score: 0,
+            level: 1,
+            rows: 0,
         };
 
         // Set background to a nice color
         this.background = new Color(0x7ec0ee);
+
+        this.row_points = [40, 100, 300, 1200];
 
         // Add meshes to scene
         const floor = new Floor(this);
@@ -34,6 +38,10 @@ class SeedScene extends Scene {
     }
 
     startGame() {
+        this.state.score = 0;
+        this.state.level = 1;
+        this.state.rows = 0;
+
         if (this.state.curBlock != undefined) {
             this.state.curBlock = undefined;
             this.removeFromUpdateList();
@@ -121,6 +129,7 @@ class SeedScene extends Scene {
             this.state.board[x + offset.x][y + offset.y] = this.state.curBlock.state.cubes[i];
         }
 
+        let rows_cleared = 0;
         for (let i = 9.5; i > -10; i -= 1) {
             let count = 0;
             for (let j = 4.5; j > -5; j -= 1) {
@@ -129,6 +138,7 @@ class SeedScene extends Scene {
                 }
             }
             if (count == 10) {
+                rows_cleared += 1;
                 // remove row
                 for (let j = -4.5; j < 5; j += 1) {
                     const cube = this.state.board[j][i];
@@ -148,6 +158,15 @@ class SeedScene extends Scene {
                 }
             }
         }
+        // calculate score
+        if (rows_cleared > 0) {
+            this.state.rows += rows_cleared;
+            this.state.score += this.row_points[rows_cleared-1]*this.state.level;
+            if (parseInt(this.state.rows/10) > this.state.level - 1) {
+                this.state.level += 1;
+            }
+        }
+
         this.addBlock();
     }
 
