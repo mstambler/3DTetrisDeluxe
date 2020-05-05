@@ -47,6 +47,7 @@ class SeedScene extends Scene {
         this.state.score = 0;
         this.state.level = 1;
         this.state.rows = 0;
+        this.state.speed = 0.02;
 
         if (this.state.curBlock != undefined) {
             this.state.curBlock = undefined;
