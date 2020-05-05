@@ -1,4 +1,4 @@
-import { Group, BoxBufferGeometry, EdgesGeometry, MeshPhongMaterial, LineBasicMaterial, LineSegments, Mesh } from 'three';
+import { Group, BoxBufferGeometry, EdgesGeometry, MeshPhongMaterial, LineBasicMaterial, LineDashedMaterial, LineSegments, Mesh } from 'three';
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 class Block extends Group {
@@ -126,7 +126,7 @@ class Block extends Group {
 
             // make shadow
             const shadowGeom = new EdgesGeometry(geometry);
-            const shadowMaterial = new LineBasicMaterial({color: material.color, linewidth: 4});
+            const shadowMaterial = new LineDashedMaterial({color: material.color, linewidth: 4});
             const shadow = new LineSegments(shadowGeom, shadowMaterial);
             shadow.translateX(this.state.offsets[i].x);
             shadow.translateY(this.state.offsets[i].y);
