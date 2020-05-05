@@ -1,4 +1,4 @@
-import { Group, Vector3, LineBasicMaterial, BufferGeometry, LineSegments } from 'three';
+import { Group, Vector3, LineDashedMaterial, BufferGeometry, LineSegments } from 'three';
 
 class Grid extends Group {
     constructor(parent) {
@@ -40,7 +40,7 @@ class Grid extends Group {
         }
 
         const lineGeometry = new BufferGeometry().setFromPoints(points);
-        const lineMaterial = new LineBasicMaterial({color: 0xffffff});
+        const lineMaterial = new LineDashedMaterial({color: 0xffffff});
         const lines = new LineSegments(lineGeometry, lineMaterial);
 
         // add to mesh
