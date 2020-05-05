@@ -1,5 +1,5 @@
 import * as Dat from 'dat.gui';
-import { Scene, Color } from 'three';
+import { Scene, Color, TextGeometry, MeshPhongMaterial, Mesh, Font} from 'three';
 import { Block, Floor, Grid } from 'objects';
 import { BasicLights } from 'lights';
 
@@ -17,6 +17,7 @@ class SeedScene extends Scene {
             width: 10,
             height: 20,
             board: [],
+            score: 0,
         };
 
         // Set background to a nice color
@@ -51,6 +52,9 @@ class SeedScene extends Scene {
             if (child instanceof Block) {
                 this.remove(child);
             }
+            else if (child.name == "game_over") {
+                this.remove(child);
+            }
         }
         this.addBlock();
     }
@@ -74,7 +78,38 @@ class SeedScene extends Scene {
     updateBlock() {
         // check for game over
         if (this.gameOver()) {
-            alert("Game over!");
+            const fontJson = require( "three/examples/fonts/optimer_bold.typeface.json" );
+            const font = new Font( fontJson );
+
+            var geometry = new TextGeometry( 'GAME OVER', {
+                font: font,
+                size: 5,
+                height: 1,
+                curveSegments: 10,
+                bevelEnabled: false,
+            } );
+
+            const material = new MeshPhongMaterial({color: 0x87071c});
+            const mesh = new Mesh(geometry, material);
+            mesh.rotateY(Math.PI);
+            mesh.position.x = 20;
+            mesh.position.z = -5;
+            mesh.name = "game_over";
+
+            var score_geo = new TextGeometry( String("Score: " + this.state.score) , {
+                font: font,
+                size: 3,
+                height: 1,
+                curveSegments: 10,
+                bevelEnabled: false,
+            } );
+            const material_score = new MeshPhongMaterial({color: 0x097025});
+            const mesh_score = new Mesh(score_geo, material_score);
+            mesh_score.position.x = 12;
+            mesh_score.position.y = -5;
+
+            mesh.add(mesh_score);
+            this.add(mesh);
             return;
         }
 
