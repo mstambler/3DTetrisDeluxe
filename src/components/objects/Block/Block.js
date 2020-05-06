@@ -1,4 +1,4 @@
-import { Group, Mesh, BoxBufferGeometry, SphereBufferGeometry, MeshPhongMaterial, TextureLoader, MeshBasicMaterial } from 'three';
+import { Group, Mesh, BoxBufferGeometry, SphereBufferGeometry, MeshPhongMaterial, TextureLoader, MeshBasicMaterial, ShaderMaterial } from 'three';
 import { EdgesGeometry, LineBasicMaterial, LineDashedMaterial, LineSegments } from 'three';
 import TEXTURE from './brick.jpg';
 
@@ -40,6 +40,35 @@ class Block extends Group {
     makeBlock(shape, parent) {
         const texture = new TextureLoader().load( TEXTURE );
         let material;
+        /*material = new ShaderMaterial( {
+
+            uniforms: {},
+
+            vertexShader: [
+                "varying vec2 vUV;",
+                "varying vec3 vNormal;",
+
+                "void main() {",
+
+                "vUV = uv;",
+                "vNormal = vec3( normal );",
+                "gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+
+                "}"
+            ].join( "\n" ),
+
+            fragmentShader: [
+                "varying vec2 vUV;",
+                "varying vec3 vNormal;",
+
+                "void main() {",
+
+                "vec4 c = vec4( abs( vNormal ) + vec3( vUV, 0.0 ), 0.0 );",
+                "gl_FragColor = c;",
+
+                "}"
+            ].join( "\n" )
+        } );*/
         switch(shape) {
             case 0: { // O
                 if (parent.state.Colors == "Standard") {
