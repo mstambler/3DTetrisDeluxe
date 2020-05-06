@@ -1,4 +1,4 @@
-import { Group, Mesh, BoxBufferGeometry, MeshPhongMaterial, TextureLoader, MeshBasicMaterial } from 'three';
+import { Group, Mesh, BoxBufferGeometry, SphereBufferGeometry, MeshPhongMaterial, TextureLoader, MeshBasicMaterial } from 'three';
 import { EdgesGeometry, LineBasicMaterial, LineDashedMaterial, LineSegments } from 'three';
 import TEXTURE from './brick.jpg';
 
@@ -42,10 +42,10 @@ class Block extends Group {
         let material;
         switch(shape) {
             case 0: { // O
-                if (parent.state.Colors == "standard") {
+                if (parent.state.Colors == "Standard") {
                     material = new MeshPhongMaterial({color: 0xfcff4a});
                 }
-                else if (parent.state.Colors == "brick") {
+                else if (parent.state.Colors == "Brick") {
                     material = new MeshBasicMaterial( { map: texture } );
                 }
                 this.state.offsets = [
@@ -57,10 +57,10 @@ class Block extends Group {
                 break;
             }
             case 1: { // I
-                if (parent.state.Colors == "standard") {
+                if (parent.state.Colors == "Standard") {
                     material = new MeshPhongMaterial({color: 0x40fcff});
                 }
-                else if (parent.state.Colors == "brick") {
+                else if (parent.state.Colors == "Brick") {
                     material = new MeshBasicMaterial( { map: texture } );
                 }
                 this.state.offsets = [
@@ -72,10 +72,10 @@ class Block extends Group {
                 break;
             }
             case 2: { // S
-                if (parent.state.Colors == "standard") {
+                if (parent.state.Colors == "Standard") {
                     material = new MeshPhongMaterial({color: 0x24ab27}); 
                 }
-                else if (parent.state.Colors == "brick") {
+                else if (parent.state.Colors == "Brick") {
                     material = new MeshBasicMaterial( { map: texture } );
                 }
                 this.state.offsets = [
@@ -87,10 +87,10 @@ class Block extends Group {
                 break;
             }
             case 3: { // Z
-                if (parent.state.Colors == "standard") {
+                if (parent.state.Colors == "Standard") {
                     material = new MeshPhongMaterial({color: 0xff0000});
                 }
-                else if (parent.state.Colors == "brick") {
+                else if (parent.state.Colors == "Brick") {
                     material = new MeshBasicMaterial( { map: texture } );
                 }
                 this.state.offsets = [
@@ -102,10 +102,10 @@ class Block extends Group {
                 break;
             }
             case 4: { // L
-                if (parent.state.Colors == "standard") {
+                if (parent.state.Colors == "Standard") {
                     material = new MeshPhongMaterial({color: 0xcf7f00});
                 }
-                else if (parent.state.Colors == "brick") {
+                else if (parent.state.Colors == "Brick") {
                     material = new MeshBasicMaterial( { map: texture } );
                 }
                 this.state.offsets = [
@@ -117,10 +117,10 @@ class Block extends Group {
                 break;
             }
             case 5: { // J
-                if (parent.state.Colors == "standard") {
+                if (parent.state.Colors == "Standard") {
                     material = new MeshPhongMaterial({color: 0x121db8});
                 }
-                else if (parent.state.Colors == "brick") {
+                else if (parent.state.Colors == "Brick") {
                     material = new MeshBasicMaterial( { map: texture } );
                 }
                 this.state.offsets = [
@@ -132,10 +132,10 @@ class Block extends Group {
                 break;
             }
             case 6: { // T
-                if (parent.state.Colors == "standard") {
+                if (parent.state.Colors == "Standard") {
                     material = new MeshPhongMaterial({color: 0x8d0fb8});
                 }
-                else if (parent.state.Colors == "brick") {
+                else if (parent.state.Colors == "Brick") {
                     material = new MeshBasicMaterial( { map: texture } );
                 }
                 this.state.offsets = [
@@ -148,7 +148,15 @@ class Block extends Group {
             }
         }
 
-        const geometry = new BoxBufferGeometry(1, 1, 1);
+        let geometry;
+        switch(parent.state.Shape) {
+            case "Cube":
+                geometry = new BoxBufferGeometry(1, 1, 1);
+                break;
+            case "Sphere":
+                geometry = new SphereBufferGeometry(0.5);
+                break;
+        }
         for (let i = 0; i < this.state.offsets.length; i++) {
             // make cube and translate
             const mesh = new Mesh(geometry, material);
@@ -156,19 +164,21 @@ class Block extends Group {
             mesh.translateY(this.state.offsets[i].y);
 
             // make outline
-            const edgesGeometry = new EdgesGeometry(geometry);
-            const edgesMaterial = new LineBasicMaterial({color: 0x000000, linewidth: 4});
-            const edges = new LineSegments(edgesGeometry, edgesMaterial);
-            mesh.add(edges);
+            if (parent.state.Shape == "Cube") {
+                const edgesGeometry = new EdgesGeometry(geometry);
+                const edgesMaterial = new LineBasicMaterial({color: 0x000000, linewidth: 4});
+                const edges = new LineSegments(edgesGeometry, edgesMaterial);
+                mesh.add(edges);
+            }
 
             // make shadow
             const shadowGeom = new EdgesGeometry(geometry);
             
             let shadowMaterial;
-            if (parent.state.Colors == "standard") {
+            if (parent.state.Colors == "Standard") {
                 shadowMaterial = new LineDashedMaterial({color: material.color, linewidth: 4});
             }
-            else if (parent.state.Colors == "brick") {
+            else if (parent.state.Colors == "Brick") {
                 shadowMaterial = new LineDashedMaterial({color: 0x633e3c, linewidth: 4});
             }
             const shadow = new LineSegments(shadowGeom, shadowMaterial);

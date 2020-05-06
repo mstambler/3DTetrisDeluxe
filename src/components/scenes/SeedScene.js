@@ -22,7 +22,8 @@ class SeedScene extends Scene {
             level: 1,
             speed: 0.02,
             rows: 0,
-            Colors: "standard",
+            Shape: "Cube",
+            Colors: "Standard",
         };
 
         // Set background to a nice color
@@ -42,7 +43,8 @@ class SeedScene extends Scene {
 
         // Populate GUI
         this.state.gui.add(this.state, 'Start');
-        this.state.gui.add(this.state, 'Colors', [ 'standard', 'brick' ]);
+        this.state.gui.add(this.state, 'Shape', [ 'Cube', 'Sphere' ]);
+        this.state.gui.add(this.state, 'Colors', [ 'Standard', 'Brick' ]);
     }
 
     startGame() {
