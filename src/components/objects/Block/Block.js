@@ -1,5 +1,6 @@
-import { Group, BoxBufferGeometry, EdgesGeometry, MeshPhongMaterial, LineBasicMaterial, LineDashedMaterial, LineSegments, Mesh } from 'three';
-import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { Group, Mesh, BoxBufferGeometry, MeshPhongMaterial } from 'three';
+import { EdgesGeometry, LineBasicMaterial, LineDashedMaterial, LineSegments } from 'three';
+
 
 class Block extends Group {
     constructor(parent) {

@@ -1,5 +1,4 @@
-import { Group, MeshBasicMaterial, Mesh, DoubleSide, Vector3 } from 'three';
-import { PlaneBufferGeometry, LineBasicMaterial, BufferGeometry, LineSegments } from 'three';
+import { Group, MeshBasicMaterial, Mesh, DoubleSide, PlaneBufferGeometry } from 'three';
 
 class Floor extends Group {
     constructor(parent) {

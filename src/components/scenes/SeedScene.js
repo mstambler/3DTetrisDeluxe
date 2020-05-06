@@ -209,7 +209,8 @@ class SeedScene extends Scene {
         const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
         const font = new Font( fontJson );
 
-        const geometry = new TextGeometry(String('High Score: ' + this.state.highScore + '\nScore: ' + this.state.score + '\nLevel: ' + this.state.level), {
+        const text = String('High Score: ' + this.state.highScore + '\nScore: ' + this.state.score + '\nLevel: ' + this.state.level);
+        const geometry = new TextGeometry(text, {
             font: font,
             size: 1,
             height: 0.25,
