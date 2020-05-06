@@ -60,7 +60,7 @@ class Block extends Group {
                 break;
             }
             case 2: { // S
-                material = new MeshPhongMaterial({color: 0xff0000}); 
+                material = new MeshPhongMaterial({color: 0x24ab27}); 
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: -1, y: 0},
@@ -70,7 +70,7 @@ class Block extends Group {
                 break;
             }
             case 3: { // Z
-                material = new MeshPhongMaterial({color: 0x24ab27});
+                material = new MeshPhongMaterial({color: 0xff0000});
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: 1, y: 0},

@@ -18,7 +18,7 @@ class SeedScene extends Scene {
             height: 20,
             board: [],
             score: 0,
-            high_score: 0,
+            highScore: 0,
             level: 1,
             speed: 0.02,
             rows: 0,
@@ -67,7 +67,7 @@ class SeedScene extends Scene {
             if (child instanceof Block) {
                 this.remove(child);
             }
-            else if (child.name == "game_over") {
+            else if (child.name == 'game_over') {
                 this.remove(child);
             }
         }
@@ -96,7 +96,7 @@ class SeedScene extends Scene {
         if (this.gameOver()) {
             this.state.curBlock = undefined;
 
-            const fontJson = require("three/examples/fonts/optimer_bold.typeface.json");
+            const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
             const font = new Font(fontJson);
 
             const geometry = new TextGeometry('GAME OVER', {
@@ -111,9 +111,9 @@ class SeedScene extends Scene {
             mesh.rotateY(Math.PI);
             mesh.position.x = 20;
             mesh.position.z = -5;
-            mesh.name = "game_over";
+            mesh.name = 'game_over';
 
-            const scoreGeo = new TextGeometry( String("Score: " + this.state.score), {
+            const scoreGeo = new TextGeometry( String('Score: ' + this.state.score), {
                 font: font,
                 size: 3,
                 height: 1,
@@ -175,7 +175,7 @@ class SeedScene extends Scene {
                 this.state.level += 1;
                 this.state.speed += 0.01;
             }
-            if (this.state.score > this.state.high_score) this.state.high_score = this.state.score;
+            if (this.state.score > this.state.highScore) this.state.highScore = this.state.score;
             this.updateScoreKeeper();
         }
 
@@ -206,16 +206,16 @@ class SeedScene extends Scene {
     }
 
     updateScoreKeeper() {
-        const fontJson = require( "three/examples/fonts/optimer_bold.typeface.json" );
+        const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
         const font = new Font( fontJson );
 
-        var geometry = new TextGeometry( String('High Score: ' + this.state.high_score + '\nScore: ' + this.state.score + '\nLevel: ' + this.state.level), {
+        const geometry = new TextGeometry(String('High Score: ' + this.state.highScore + '\nScore: ' + this.state.score + '\nLevel: ' + this.state.level), {
             font: font,
             size: 1,
             height: 0.25,
             curveSegments: 10,
             bevelEnabled: false,
-        } );
+        });
 
         const material = new MeshPhongMaterial({color: 0x1106a1});
         const mesh = new Mesh(geometry, material);
@@ -223,8 +223,8 @@ class SeedScene extends Scene {
         mesh.position.x = -7;
         mesh.position.y = 9;
 
-        if (this.score_keeper != undefined) this.remove(this.score_keeper);
-        this.score_keeper = mesh;
+        if (this.scoreKeeper != undefined) this.remove(this.scoreKeeper);
+        this.scoreKeeper = mesh;
         this.add(mesh);
     }
 }
