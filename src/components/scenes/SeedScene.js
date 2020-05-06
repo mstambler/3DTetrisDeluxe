@@ -22,8 +22,8 @@ class SeedScene extends Scene {
             level: 1,
             speed: 0.02,
             rows: 0,
-            Shape: "Cube",
-            Colors: "Standard",
+            Shape: 'Cube',
+            Colors: 'Standard',
         };
 
         // Set background to a nice color

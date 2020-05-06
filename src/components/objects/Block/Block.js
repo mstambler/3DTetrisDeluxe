@@ -24,7 +24,6 @@ class Block extends Group {
 
         this.name = 'block';
         this.makeBlock(this.state.shape, parent);
-        this.updateShadow(parent);
 
         for (let offset of this.state.offsets) {
             if (parent.state.board[this.position.x + offset.x][this.position.y + offset.y] !== undefined) {
@@ -38,16 +37,10 @@ class Block extends Group {
     }
 
     makeBlock(shape, parent) {
-        const texture = new TextureLoader().load( TEXTURE );
-        let material;
+        let color;
         switch(shape) {
             case 0: { // O
-                if (parent.state.Colors == "Standard") {
-                    material = new MeshPhongMaterial({color: 0xfcff4a});
-                }
-                else if (parent.state.Colors == "Brick") {
-                    material = new MeshBasicMaterial( { map: texture } );
-                }
+                color = 0xfcff4a;
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: -1, y: 0},
@@ -57,12 +50,7 @@ class Block extends Group {
                 break;
             }
             case 1: { // I
-                if (parent.state.Colors == "Standard") {
-                    material = new MeshPhongMaterial({color: 0x40fcff});
-                }
-                else if (parent.state.Colors == "Brick") {
-                    material = new MeshBasicMaterial( { map: texture } );
-                }
+                color = 0x40fcff;
                 this.state.offsets = [
                     {x: 1, y: 0},
                     {x: 0, y: 0},
@@ -72,12 +60,7 @@ class Block extends Group {
                 break;
             }
             case 2: { // S
-                if (parent.state.Colors == "Standard") {
-                    material = new MeshPhongMaterial({color: 0x24ab27}); 
-                }
-                else if (parent.state.Colors == "Brick") {
-                    material = new MeshBasicMaterial( { map: texture } );
-                }
+                color = 0x24ab27;
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: -1, y: 0},
@@ -87,12 +70,7 @@ class Block extends Group {
                 break;
             }
             case 3: { // Z
-                if (parent.state.Colors == "Standard") {
-                    material = new MeshPhongMaterial({color: 0xff0000});
-                }
-                else if (parent.state.Colors == "Brick") {
-                    material = new MeshBasicMaterial( { map: texture } );
-                }
+                color = 0xff0000;
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: 1, y: 0},
@@ -102,12 +80,7 @@ class Block extends Group {
                 break;
             }
             case 4: { // L
-                if (parent.state.Colors == "Standard") {
-                    material = new MeshPhongMaterial({color: 0xcf7f00});
-                }
-                else if (parent.state.Colors == "Brick") {
-                    material = new MeshBasicMaterial( { map: texture } );
-                }
+                color = 0xcf7f00;
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: 1, y: 0},
@@ -117,12 +90,7 @@ class Block extends Group {
                 break;
             }
             case 5: { // J
-                if (parent.state.Colors == "Standard") {
-                    material = new MeshPhongMaterial({color: 0x121db8});
-                }
-                else if (parent.state.Colors == "Brick") {
-                    material = new MeshBasicMaterial( { map: texture } );
-                }
+                color = 0x121db8;
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: -1, y: 0},
@@ -132,12 +100,7 @@ class Block extends Group {
                 break;
             }
             case 6: { // T
-                if (parent.state.Colors == "Standard") {
-                    material = new MeshPhongMaterial({color: 0x8d0fb8});
-                }
-                else if (parent.state.Colors == "Brick") {
-                    material = new MeshBasicMaterial( { map: texture } );
-                }
+                color = 0x8d0fb8;
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: 1, y: 0},
@@ -150,13 +113,28 @@ class Block extends Group {
 
         let geometry;
         switch(parent.state.Shape) {
-            case "Cube":
+            case 'Cube':
                 geometry = new BoxBufferGeometry(1, 1, 1);
                 break;
-            case "Sphere":
+            case 'Sphere':
                 geometry = new SphereBufferGeometry(0.5);
                 break;
         }
+
+        const texture = new TextureLoader().load(TEXTURE);
+        let material;
+        let shadowMaterial;
+        switch(parent.state.Colors) {
+            case 'Standard':
+                material = new MeshPhongMaterial({color: color});
+                shadowMaterial = new LineDashedMaterial({color: material.color, linewidth: 4});
+                break;
+            case 'Brick':
+                material = new MeshBasicMaterial({map: texture});
+                shadowMaterial = new LineDashedMaterial({color: 0x633e3c, linewidth: 4});
+                break;
+        }
+
         for (let i = 0; i < this.state.offsets.length; i++) {
             // make cube and translate
             const mesh = new Mesh(geometry, material);
@@ -164,7 +142,7 @@ class Block extends Group {
             mesh.translateY(this.state.offsets[i].y);
 
             // make outline
-            if (parent.state.Shape == "Cube") {
+            if (parent.state.Shape == 'Cube') {
                 const edgesGeometry = new EdgesGeometry(geometry);
                 const edgesMaterial = new LineBasicMaterial({color: 0x000000, linewidth: 4});
                 const edges = new LineSegments(edgesGeometry, edgesMaterial);
@@ -173,14 +151,6 @@ class Block extends Group {
 
             // make shadow
             const shadowGeom = new EdgesGeometry(geometry);
-            
-            let shadowMaterial;
-            if (parent.state.Colors == "Standard") {
-                shadowMaterial = new LineDashedMaterial({color: material.color, linewidth: 4});
-            }
-            else if (parent.state.Colors == "Brick") {
-                shadowMaterial = new LineDashedMaterial({color: 0x633e3c, linewidth: 4});
-            }
             const shadow = new LineSegments(shadowGeom, shadowMaterial);
             shadow.translateX(this.state.offsets[i].x);
             shadow.translateY(this.state.offsets[i].y);
@@ -191,6 +161,7 @@ class Block extends Group {
             this.add(mesh);
             this.add(shadow);
         }
+        this.updateShadow(parent);
     }
 
     floor() {
@@ -268,7 +239,7 @@ class Block extends Group {
 
     blockArrow(key) {
         switch(key) {
-            case "ArrowRight":
+            case 'ArrowRight':
                 for (let offset of this.state.offsets) {
                     if (this.position.x + offset.x < -4) {
                         return;
@@ -279,7 +250,7 @@ class Block extends Group {
                 }
                 this.position.x -= 1;
                 break;
-            case "ArrowLeft":
+            case 'ArrowLeft':
                 for (let offset of this.state.offsets) {
                     if (this.position.x + offset.x > 4) {
                         return;
@@ -290,7 +261,7 @@ class Block extends Group {
                 }
                 this.position.x += 1;
                 break;
-            case "ArrowDown":
+            case 'ArrowDown':
                 for (let offset of this.state.offsets) {
                     if (this.position.y + offset.y < -9) {
                         return;
@@ -303,14 +274,14 @@ class Block extends Group {
                 this.position.y -= 1;
                 this.updateShadow(this.parent);
                 break;
-            case " ":
+            case ' ':
                 // drop and floor
                 const dropDist = this.state.offsets[0].y - this.state.shadows[0].position.y;
                 this.state.continuousPos -= dropDist;
                 this.position.y -= dropDist;
                 this.floor();
                 break;
-            case "ArrowUp":
+            case 'ArrowUp':
                 if (this.state.shape > 1) {
                     const newOffsets = [];
                     for (let i = 0; i < this.state.offsets.length; i++) {
