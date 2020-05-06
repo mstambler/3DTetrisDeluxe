@@ -196,7 +196,6 @@ class Block extends Group {
         for (let offset of this.state.offsets) {
             // check for blocks below
             for (let y = this.position.y + offset.y - 1; y > -10; y--) {
-                //debugger;
                 if (parent.state.board[this.position.x + offset.x][y] !== undefined) {
                     // found the block it would intersect
                     if (this.position.y + offset.y - y - 1 < minDropDist) {
@@ -252,24 +251,10 @@ class Block extends Group {
                 this.updateShadow(this.parent);
                 break;
             case " ":
-                let minDropDist = this.position.y + 9.5;
-                for (let offset of this.state.offsets) {
-                    // check for blocks below
-                    for (let y = this.position.y + offset.y - 1; y > -10; y--) {
-                        if (this.parent.state.board[this.position.x + offset.x][y] !== undefined) {
-                            // found the block it would intersect
-                            if (this.position.y + offset.y - y - 1 < minDropDist) {
-                                minDropDist = this.position.y + offset.y - y - 1;
-                            }
-                            break;
-                        }
-                    }
-                    minDropDist = Math.min(minDropDist, this.position.y + offset.y + 9.5);
-                }
-
-                // move down
-                this.state.continuousPos -= minDropDist;
-                this.position.y -= minDropDist;
+                // drop and floor
+                const dropDist = this.state.offsets[0].y - this.state.shadows[0].position.y;
+                this.state.continuousPos -= dropDist;
+                this.position.y -= dropDist;
                 this.floor();
                 break;
             case "ArrowUp":
