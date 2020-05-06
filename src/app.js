@@ -6,14 +6,14 @@
  * handles window resizes.
  *
  */
-import { WebGLRenderer, PerspectiveCamera, Vector3, Vector2 } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Vector3, Vector2, Layers, ShaderMaterial } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SeedScene } from 'scenes';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { HalftonePass } from 'three/examples/jsm/postprocessing/HalftonePass.js';
-
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 
 // Initialize core ThreeJS components
 const scene = new SeedScene();
@@ -45,18 +45,14 @@ controls.update();
 
 var composer;
 var params = {
-    exposure: 1,
-    bloomStrength: 1.5,
-    bloomThreshold: 0,
-    bloomRadius: 0
+    exposure: 5,
+    bloomStrength: 10,
+    bloomThreshold: 1,
+    bloomRadius: 1,
 };
 
 var renderScene = new RenderPass( scene, camera );
 
-var bloomPass = new UnrealBloomPass( new Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
-//bloomPass.threshold = params.bloomThreshold;
-bloomPass.strength = params.bloomStrength;
-bloomPass.radius = params.bloomRadius;
 
 composer = new EffectComposer( renderer );
 //composer.renderToScreen = false;
@@ -78,12 +74,50 @@ var params2 = {
     disable: false
 };
 var halftonePass = new HalftonePass( window.innerWidth, window.innerHeight, params2 );
+
+var toneLayer = new Layers();
+toneLayer.set( 1 );
 //composer.addPass( halftonePass );
+
+/*var bloomPass = new UnrealBloomPass( new Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+bloomPass.threshold = params.bloomThreshold;
+bloomPass.strength = params.bloomStrength;
+bloomPass.radius = params.bloomRadius;*/
+
+var toneComposer = new EffectComposer( renderer );
+//bloomComposer.renderToScreen = false;
+toneComposer.addPass( renderScene );
+toneComposer.addPass( halftonePass );
+
+/*var finalPass = new ShaderPass(
+    new ShaderMaterial( {
+        uniforms: {
+            baseTexture: { value: null },
+            bloomTexture: { value: bloomComposer.renderTarget2.texture }
+        },
+        vertexShader: document.getElementById( 'vertexshader' ).textContent,
+        fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+        defines: {}
+    } ), "baseTexture"
+);
+finalPass.needsSwap = true;*/
+
+//var finalComposer = new EffectComposer( renderer );
+//finalComposer.addPass( renderScene );
+
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
     controls.update();
-    //renderer.render(scene, camera);
-    composer.render();
+    renderer.render( scene, camera);
+    //camera.layers.set( 1 );
+    
+	//bloomComposer.render();
+    //camera.layers.set( 0 );
+    //finalComposer.render();
+
+    //toneComposer.render();
+    //renderer.clearDepth();
+    //camera.layers.set( 0 );
     scene.update && scene.update(timeStamp);
     window.requestAnimationFrame(onAnimationFrameHandler);
 };
