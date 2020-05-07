@@ -43,11 +43,10 @@ controls.minPolarAngle = 0;
 controls.maxPolarAngle = Math.PI/2 + 0.05;
 controls.update();
 
-var composer;
 var params = {
-    //exposure: 1,
-	bloomStrength: 2,
-	bloomThreshold: 0.1,
+    exposure: 0,
+	bloomStrength: 0.75,
+	bloomThreshold: 0,
 	bloomRadius: 0
 };
 

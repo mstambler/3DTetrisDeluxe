@@ -1,5 +1,6 @@
 import { Group, Mesh, BoxBufferGeometry, SphereBufferGeometry, MeshPhongMaterial, TextureLoader, MeshBasicMaterial, ShaderMaterial } from 'three';
 import { EdgesGeometry, LineBasicMaterial, LineDashedMaterial, LineSegments } from 'three';
+import {MeshLambertMaterial, MixOperation} from 'three';
 import TEXTURE from './brick.jpg';
 
 class Block extends Group {
@@ -66,6 +67,7 @@ class Block extends Group {
             }
             case 2: { // S
                 color = 0x24ab27;
+                if (parent.state.Colors == 'Neon') color = 0x4aed5d;
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: -1, y: 0},
@@ -76,6 +78,7 @@ class Block extends Group {
             }
             case 3: { // Z
                 color = 0xff0000;
+                if (parent.state.Colors == 'Neon') color = 0xed4e40;
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: 1, y: 0},
@@ -86,6 +89,7 @@ class Block extends Group {
             }
             case 4: { // L
                 color = 0xcf7f00;
+                if (parent.state.Colors == 'Neon') color = 0xfa6c14;
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: 1, y: 0},
@@ -96,6 +100,7 @@ class Block extends Group {
             }
             case 5: { // J
                 color = 0x121db8;
+                if (parent.state.Colors == 'Neon') color = 0x3731eb;
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: -1, y: 0},
@@ -106,6 +111,7 @@ class Block extends Group {
             }
             case 6: { // T
                 color = 0x8d0fb8;
+                if (parent.state.Colors == 'Neon') color = 0xed4ee0;
                 this.state.offsets = [
                     {x: 0, y: 0},
                     {x: 1, y: 0},
@@ -139,7 +145,7 @@ class Block extends Group {
                 shadowMaterial = new LineDashedMaterial({color: 0x633e3c, linewidth: 4});
                 break;
             case 'Neon':
-                material = new MeshPhongMaterial({color: color});
+                material = new LineDashedMaterial({color: color});
                 shadowMaterial = new LineDashedMaterial({color: material.color, linewidth: 4});
                 break;
         }
