@@ -76,6 +76,7 @@ var params2 = {
 };
 var halftonePass = new HalftonePass( window.innerWidth, window.innerHeight, params2 );
 
+//camera.layers.enable(1);
 var toneLayer = new Layers();
 toneLayer.set( 1 );
 //composer.addPass( halftonePass );
@@ -85,16 +86,16 @@ bloomPass.threshold = params.bloomThreshold;
 bloomPass.strength = params.bloomStrength;
 bloomPass.radius = params.bloomRadius;
 
-var toneComposer = new EffectComposer( renderer );
-toneComposer.renderToScreen = false;
-toneComposer.addPass( renderScene );
-toneComposer.addPass( bloomPass );
+var bloomComposer = new EffectComposer( renderer );
+bloomComposer.renderToScreen = false;
+bloomComposer.addPass( renderScene );
+bloomComposer.addPass( bloomPass );
 
 var finalPass = new ShaderPass(
     new ShaderMaterial( {
         uniforms: {
             baseTexture: { value: null },
-            bloomTexture: { value: toneComposer.renderTarget2.texture }
+            bloomTexture: { value: bloomComposer.renderTarget2.texture }
         },
         vertexShader: [
             "varying vec2 vUv;",
@@ -138,47 +139,49 @@ finalComposer.addPass( finalPass );
 const onAnimationFrameHandler = (timeStamp) => {
     controls.update();
     //renderer.render( scene, camera);
+    if (scene.state.Colors == "Neon") {
     var materials = {};
-    for (let child of scene.children) {
-        if (child instanceof Block) {
-            child.layers.enable(1);
-        }
-        if ( toneLayer.test( child.layers ) === false ) {
-            if (child.isMesh) {
-                materials[ child.uuid ] = child.material;
-                child.material = new MeshBasicMaterial( { color: "black" } );
+        for (let child of scene.children) {
+         /*if (child instanceof Block) {
+             child.layers.enable(1);
+         }*/
+        // if ( toneLayer.test( child.layers ) === false ) {
+            if (!(child instanceof Block)) {
+                if (child.isMesh) {
+                    materials[ child.uuid ] = child.material;
+                    child.material = new MeshBasicMaterial( { color: "black" } );
+                    if (child.children.length > 0 ) {
+                        materials[ child.children[0].uuid ] = child.children[0].material;
+                        child.children[0].material = new MeshBasicMaterial( { color: "black" } );
+                    }
+                }
+                else {
+                    materials[ child.children[0].uuid ] = child.children[0].material;
+                    child.children[0].material = new MeshBasicMaterial( { color: "black" } );
+                }
             }
-            else {
-                materials[ child.children[0].uuid ] = child.children[0].material;
-                child.children[0].material = new MeshBasicMaterial( { color: "black" } );
+        }
+        bloomComposer.render();
+        
+        for (let child of scene.children) {
+            if ( child.isMesh ) {
+                child.material = materials[ child.uuid ];
+                delete materials[ child.uuid ];
+                if (child.children.length > 0 ) {
+                    child.children[0].material = materials[ child.children[0].uuid ];
+                    delete materials[ child.children[0].uuid ];
+                }
             }
-
-            //child.colorWrite = false;
+            else if (child.children.length > 0 && materials[child.children[0].uuid]) {
+                child.children[0].material = materials[ child.children[0].uuid ];
+                delete materials[ child.children[0].uuid ];
+            }
         }
+        finalComposer.render();
     }
-    //renderer.clear();
-    //camera.layers.set( 1 );
-    
-	//bloomComposer.render();
-    //camera.layers.set( 0 );
-    //finalComposer.render();
-
-    toneComposer.render();
-    //renderer.clearDepth();
-    //camera.layers.set( 0 );
-    for (let child of scene.children) {
-        if ( child.isMesh ) {
-            child.material = materials[ child.uuid ];
-            delete materials[ child.uuid ];
-
-        }
-        else if (child.children.length > 0 && materials[child.children[0].uuid]) {
-            child.children[0].material = materials[ child.children[0].uuid ];
-            delete materials[ child.children[0].uuid ];
-        }
+    else {
+        renderer.render( scene, camera);
     }
-    finalComposer.render();
-    //renderer.render( scene, camera);
     scene.update && scene.update(timeStamp);
     window.requestAnimationFrame(onAnimationFrameHandler);
 };
