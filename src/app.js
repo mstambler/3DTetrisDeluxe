@@ -6,9 +6,10 @@
  * handles window resizes.
  *
  */
-import { WebGLRenderer, PerspectiveCamera, Vector3, Vector2, Layers, ShaderMaterial } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Vector3, Vector2, Layers, ShaderMaterial, MeshBasicMaterial } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SeedScene } from 'scenes';
+import { Block } from 'objects';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
@@ -45,10 +46,10 @@ controls.update();
 
 var composer;
 var params = {
-    exposure: 5,
-    bloomStrength: 10,
-    bloomThreshold: 1,
-    bloomRadius: 1,
+    //exposure: 1,
+	bloomStrength: 2,
+	bloomThreshold: 0.1,
+	bloomRadius: 0
 };
 
 var renderScene = new RenderPass( scene, camera );
@@ -79,45 +80,105 @@ var toneLayer = new Layers();
 toneLayer.set( 1 );
 //composer.addPass( halftonePass );
 
-/*var bloomPass = new UnrealBloomPass( new Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+var bloomPass = new UnrealBloomPass( new Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
 bloomPass.threshold = params.bloomThreshold;
 bloomPass.strength = params.bloomStrength;
-bloomPass.radius = params.bloomRadius;*/
+bloomPass.radius = params.bloomRadius;
 
 var toneComposer = new EffectComposer( renderer );
-//bloomComposer.renderToScreen = false;
+toneComposer.renderToScreen = false;
 toneComposer.addPass( renderScene );
-toneComposer.addPass( halftonePass );
+toneComposer.addPass( bloomPass );
 
-/*var finalPass = new ShaderPass(
+var finalPass = new ShaderPass(
     new ShaderMaterial( {
         uniforms: {
             baseTexture: { value: null },
-            bloomTexture: { value: bloomComposer.renderTarget2.texture }
+            bloomTexture: { value: toneComposer.renderTarget2.texture }
         },
-        vertexShader: document.getElementById( 'vertexshader' ).textContent,
-        fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+        vertexShader: [
+            "varying vec2 vUv;",
+
+			"void main() {",
+
+				"vUv = uv;",
+
+				"gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+
+			"}"
+        ].join( "\n" ),
+       fragmentShader: [
+        "uniform sampler2D baseTexture;",
+        "uniform sampler2D bloomTexture;",
+
+        "varying vec2 vUv;",
+
+        "vec4 getTexture( sampler2D texelToLinearTexture ) {",
+
+            "return mapTexelToLinear( texture2D( texelToLinearTexture , vUv ) );",
+
+        "}",
+
+        "void main() {",
+
+            "gl_FragColor = ( getTexture( baseTexture ) + vec4( 1.0 ) * getTexture( bloomTexture ) );",
+
+        "}"
+       ].join( "\n" ),
         defines: {}
     } ), "baseTexture"
 );
-finalPass.needsSwap = true;*/
+finalPass.needsSwap = true;
 
-//var finalComposer = new EffectComposer( renderer );
-//finalComposer.addPass( renderScene );
+var finalComposer = new EffectComposer( renderer );
+finalComposer.addPass( renderScene );
+finalComposer.addPass( finalPass );
 
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
     controls.update();
-    renderer.render( scene, camera);
+    //renderer.render( scene, camera);
+    var materials = {};
+    for (let child of scene.children) {
+        if (child instanceof Block) {
+            child.layers.enable(1);
+        }
+        if ( toneLayer.test( child.layers ) === false ) {
+            if (child.isMesh) {
+                materials[ child.uuid ] = child.material;
+                child.material = new MeshBasicMaterial( { color: "black" } );
+            }
+            else {
+                materials[ child.children[0].uuid ] = child.children[0].material;
+                child.children[0].material = new MeshBasicMaterial( { color: "black" } );
+            }
+
+            //child.colorWrite = false;
+        }
+    }
+    //renderer.clear();
     //camera.layers.set( 1 );
     
 	//bloomComposer.render();
     //camera.layers.set( 0 );
     //finalComposer.render();
 
-    //toneComposer.render();
+    toneComposer.render();
     //renderer.clearDepth();
     //camera.layers.set( 0 );
+    for (let child of scene.children) {
+        if ( child.isMesh ) {
+            child.material = materials[ child.uuid ];
+            delete materials[ child.uuid ];
+
+        }
+        else if (child.children.length > 0 && materials[child.children[0].uuid]) {
+            child.children[0].material = materials[ child.children[0].uuid ];
+            delete materials[ child.children[0].uuid ];
+        }
+    }
+    finalComposer.render();
+    //renderer.render( scene, camera);
     scene.update && scene.update(timeStamp);
     window.requestAnimationFrame(onAnimationFrameHandler);
 };

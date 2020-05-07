@@ -12,34 +12,34 @@ class SeedScene extends Scene {
         this.state = {
             gui: new Dat.GUI(), // Create GUI for scene
             Start: this.startGame.bind(this),
+            Shape: 'Cube',
+            Colors: 'Standard',
             updateList: [],
             curBlock: null,
+            nextBlock: null,
             width: 10,
             height: 20,
             board: [],
             score: 0,
             highScore: 0,
             level: 1,
-            speed: 0.02,
             rows: 0,
-            Shape: 'Cube',
-            Colors: 'Standard',
+            speed: 0.02,
         };
 
         // Set background to a nice color
         this.background = new Color(0x7ec0ee);
-
         this.rowPoints = [40, 100, 300, 1200];
 
         // Add meshes to scene
         const floor = new Floor(this);
         const grid = new Grid(this);
         const lights = new BasicLights();
-
         this.add(floor, grid, lights);
 
-        // create scorekeeper
-        this.updateScoreKeeper()
+        // create text stuff
+        this.updateScoreKeeper();
+        this.makeNext();
 
         // Populate GUI
         this.state.gui.add(this.state, 'Start');
@@ -57,6 +57,7 @@ class SeedScene extends Scene {
             this.state.curBlock = undefined;
             this.removeFromUpdateList();
         }
+
         // Create grid
         for (let i = -4.5; i < 5; i += 1) {
             if (this.state.board[i] == undefined) {
@@ -66,6 +67,8 @@ class SeedScene extends Scene {
                 this.state.board[i][j] = undefined;
             }
         }
+
+        // remove any blocks from previous game
         for (let i = this.children.length - 1; i >= 0; i--) {
             const child = this.children[i];
             if (child instanceof Block) {
@@ -75,13 +78,37 @@ class SeedScene extends Scene {
                 this.remove(child);
             }
         }
+
         this.updateScoreKeeper();
         this.addBlock();
+        this.addBlock();
+        this.state.curBlock.start();
+    }
+
+    makeNext() {
+        const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
+        const font = new Font(fontJson);
+
+        const geometry = new TextGeometry('Next:', {
+            font: font,
+            size: 1.5,
+            height: 0.25,
+            curveSegments: 10,
+        });
+        const material = new MeshPhongMaterial({color: 0x8a2be2});
+        const mesh = new Mesh(geometry, material);
+        mesh.rotateY(Math.PI);
+        mesh.position.x = 11;
+        mesh.position.y = 8;
+        mesh.name = 'next';
+
+        this.add(mesh);
     }
 
     addBlock() {
         const newBlock = new Block(this);
-        this.state.curBlock = newBlock;
+        this.state.curBlock = this.state.nextBlock;
+        this.state.nextBlock = newBlock;
         this.add(newBlock);
     }
 
@@ -99,6 +126,7 @@ class SeedScene extends Scene {
         // check for game over
         if (this.gameOver()) {
             this.state.curBlock = undefined;
+            this.state.newBlock = undefined;
 
             const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
             const font = new Font(fontJson);
@@ -171,6 +199,7 @@ class SeedScene extends Scene {
                 }
             }
         }
+
         // calculate score
         if (rowsCleared > 0) {
             this.state.rows += rowsCleared;
@@ -184,6 +213,7 @@ class SeedScene extends Scene {
         }
 
         this.addBlock();
+        this.state.curBlock.start();
     }
 
     addToUpdateList(object) {
@@ -211,7 +241,7 @@ class SeedScene extends Scene {
 
     updateScoreKeeper() {
         const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
-        const font = new Font( fontJson );
+        const font = new Font(fontJson);
 
         const text = String('High Score: ' + this.state.highScore + '\nScore: ' + this.state.score + '\nLevel: ' + this.state.level);
         const geometry = new TextGeometry(text, {

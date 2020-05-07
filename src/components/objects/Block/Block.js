@@ -19,20 +19,36 @@ class Block extends Group {
         };
 
         // starting position
-        this.position.x = 0.5;
-        this.position.y = 9.5;
+        this.position.x = 8.5;
+        this.position.y = 6.5;
+
         this.name = 'block';
         this.makeBlock(this.state.shape, parent);
 
+        // for (let offset of this.state.offsets) {
+        //     if (parent.state.board[this.position.x + offset.x][this.position.y + offset.y] !== undefined) {
+        //         this.position.y += 1;
+        //         this.state.continuousPos += 1;
+        //     }
+        // }
+
+        // Add self to parent's update list
+        // parent.addToUpdateList(this);
+    }
+
+    start() {
+        this.position.x = 0.5;
+        this.position.y = 9.5;
+
         for (let offset of this.state.offsets) {
-            if (parent.state.board[this.position.x + offset.x][this.position.y + offset.y] !== undefined) {
+            if (this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y] !== undefined) {
                 this.position.y += 1;
                 this.state.continuousPos += 1;
             }
         }
 
-        // Add self to parent's update list
-        parent.addToUpdateList(this);
+        this.updateShadow(this.parent);
+        this.parent.addToUpdateList(this);
     }
 
     makeBlock(shape, parent) {
@@ -156,7 +172,6 @@ class Block extends Group {
         let shadowMaterial;
         switch(parent.state.Colors) {
             case 'Standard':
-                //this.layers.enable(1);
                 material = new MeshPhongMaterial({color: color});
                 shadowMaterial = new LineDashedMaterial({color: material.color, linewidth: 4});
                 break;
@@ -192,7 +207,6 @@ class Block extends Group {
             this.add(mesh);
             this.add(shadow);
         }
-        this.updateShadow(parent);
     }
 
     floor() {
