@@ -24,16 +24,6 @@ class Block extends Group {
 
         this.name = 'block';
         this.makeBlock(this.state.shape, parent);
-
-        // for (let offset of this.state.offsets) {
-        //     if (parent.state.board[this.position.x + offset.x][this.position.y + offset.y] !== undefined) {
-        //         this.position.y += 1;
-        //         this.state.continuousPos += 1;
-        //     }
-        // }
-
-        // Add self to parent's update list
-        // parent.addToUpdateList(this);
     }
 
     start() {
@@ -152,7 +142,7 @@ class Block extends Group {
 
         for (let i = 0; i < this.state.offsets.length; i++) {
             // make cube and translate
-            const mesh = new Mesh(geometry, material);
+            const mesh = new Mesh(geometry, material.clone());
             mesh.translateX(this.state.offsets[i].x);
             mesh.translateY(this.state.offsets[i].y);
 
