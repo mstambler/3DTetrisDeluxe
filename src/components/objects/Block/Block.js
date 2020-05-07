@@ -149,7 +149,7 @@ class Block extends Group {
             case 'Marble':
                 texture = new TextureLoader().load(TEXTURE_MARBLE);
                 material = new MeshBasicMaterial({map: texture, transparent: true});
-                shadowMaterial = new LineDashedMaterial({color: 0x633e3c, linewidth: 4});
+                shadowMaterial = new LineDashedMaterial({color: 0x6e6b69, linewidth: 4});
                 break;
             case 'Neon':
                 material = new LineDashedMaterial({color: color});

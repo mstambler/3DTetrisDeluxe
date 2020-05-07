@@ -130,6 +130,7 @@ class SeedScene extends Scene {
         this.state.curBlock = this.state.nextBlock;
         this.state.curBlock && this.state.curBlock.start();
         this.state.nextBlock = newBlock;
+        this.state.nextBlock.hideShadow();
         this.add(newBlock);
     }
 
