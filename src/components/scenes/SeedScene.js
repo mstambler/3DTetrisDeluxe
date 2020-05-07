@@ -12,12 +12,14 @@ class SeedScene extends Scene {
         // Init state
         this.state = {
             gui: new Dat.GUI(), // Create GUI for scene
-            Start: this.startGame.bind(this),
+            Start: this.startGame.bind(this), // gui buttons
             Shape: 'Cube',
             Colors: 'Standard',
             updateList: [],
-            curBlock: null,
-            nextBlock: null,
+            curBlock: undefined,
+            nextBlock: undefined,
+            holdBlock: undefined,
+            switched: false, // did curBlock just get switched out from hold?
             width: 10,
             height: 20,
             board: [],
@@ -40,7 +42,7 @@ class SeedScene extends Scene {
 
         // create text stuff
         this.updateScoreKeeper();
-        this.makeNext();
+        this.makeText();
 
         // Populate GUI
         this.state.gui.add(this.state, 'Start');
@@ -48,15 +50,18 @@ class SeedScene extends Scene {
         this.state.gui.add(this.state, 'Colors', [ 'Standard', 'Brick' ]);
     }
 
+    // start a new game
     startGame() {
         this.state.score = 0;
         this.state.level = 1;
         this.state.rows = 0;
         this.state.speed = 0.02;
+        this.state.switched = false;
 
         if (this.state.nextBlock != undefined) {
             this.state.curBlock = undefined;
             this.state.nextBlock = undefined;
+            this.state.holdBlock = undefined;
             this.removeFromUpdateList();
         }
 
@@ -86,26 +91,41 @@ class SeedScene extends Scene {
         this.addBlock();
     }
 
-    makeNext() {
+    // one time: make next and hold text
+    makeText() {
         const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
         const font = new Font(fontJson);
 
-        const geometry = new TextGeometry('Next:', {
+        const nextGeometry = new TextGeometry('Next:', {
             font: font,
             size: 1.5,
             height: 0.25,
             curveSegments: 10,
         });
-        const material = new MeshPhongMaterial({color: 0x8a2be2});
-        const mesh = new Mesh(geometry, material);
-        mesh.rotateY(Math.PI);
-        mesh.position.x = 11;
-        mesh.position.y = 8;
-        mesh.name = 'next';
+        const nextMaterial = new MeshPhongMaterial({color: 0x8a2be2});
+        const nextMesh = new Mesh(nextGeometry, nextMaterial);
+        nextMesh.rotateY(Math.PI);
+        nextMesh.position.x = 11;
+        nextMesh.position.y = 8;
+        nextMesh.name = 'next';
+        this.add(nextMesh);
 
-        this.add(mesh);
+        const holdGeometry = new TextGeometry('Hold:', {
+            font: font,
+            size: 1.5,
+            height: 0.25,
+            curveSegments: 10,
+        });
+        const holdMaterial = new MeshPhongMaterial({color: 0xffff33});
+        const holdMesh = new Mesh(holdGeometry, holdMaterial);
+        holdMesh.rotateY(Math.PI);
+        holdMesh.position.x = 11.5;
+        holdMesh.position.y = 2;
+        holdMesh.name = 'hold';
+        this.add(holdMesh);
     }
 
+    // add a new block, update next block to current block, start the block
     addBlock() {
         const newBlock = new Block(this);
         this.state.curBlock = this.state.nextBlock;
@@ -114,6 +134,27 @@ class SeedScene extends Scene {
         this.add(newBlock);
     }
 
+    holdBlock() {
+        if (this.state.switched) return; // don't allow switiching a block out then in
+
+        this.state.switched = true;
+        this.removeFromUpdateList();
+        this.state.curBlock.position.x = 9.5;
+        this.state.curBlock.position.y = 0;
+        this.state.curBlock.hideShadow();
+
+        if (this.state.holdBlock === undefined) {
+            this.state.holdBlock = this.state.curBlock;
+            this.addBlock();
+        } else {
+            const temp = this.state.holdBlock;
+            this.state.holdBlock = this.state.curBlock;
+            this.state.curBlock = temp;
+            this.state.curBlock.start();
+        }
+    }
+
+    // check for game over
     gameOver() {
         const cur = this.state.curBlock;
         for (let offset of cur.state.offsets) {
@@ -124,11 +165,13 @@ class SeedScene extends Scene {
         return false;
     }
 
+    // update the block once a block has stopped moving
     updateBlock() {
         // check for game over
         if (this.gameOver()) {
             this.state.curBlock = undefined;
             this.state.nextBlock = undefined;
+            this.state.holdBlock = undefined;
 
             const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
             const font = new Font(fontJson);
@@ -172,6 +215,7 @@ class SeedScene extends Scene {
             this.state.board[x + offset.x][y + offset.y] = this.state.curBlock.state.cubes[i];
         }
         this.state.curBlock = undefined;
+        this.state.switched = false;
 
         let rowsCleared = 0;
         let madeTween = false;
@@ -265,15 +309,16 @@ class SeedScene extends Scene {
             obj.update(timeStamp);
         }
 
+        // update Tweens
         TWEEN.update();
     }
 
     arrow(key) {
-        if (this.state.curBlock != undefined) {
-            this.state.curBlock.blockArrow(key);
-        }
+        if (key == 'Shift') this.state.nextBlock && this.holdBlock();
+        else if (this.state.curBlock != undefined) this.state.curBlock.blockArrow(key);
     }
 
+    // update visible score
     updateScoreKeeper() {
         const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
         const font = new Font(fontJson);

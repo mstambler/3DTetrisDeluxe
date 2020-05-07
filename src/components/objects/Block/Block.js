@@ -19,7 +19,7 @@ class Block extends Group {
         };
 
         // starting position
-        this.position.x = 8.5;
+        this.position.x = 9.5;
         this.position.y = 6.5;
 
         this.name = 'block';
@@ -238,6 +238,13 @@ class Block extends Group {
         for (let i = 0; i < this.state.offsets.length; i++) {
             this.state.shadows[i].position.x = this.state.offsets[i].x;
             this.state.shadows[i].position.y = this.state.offsets[i].y - minDropDist;
+            this.state.shadows[i].visible = true;
+        }
+    }
+
+    hideShadow() {
+        for (let shadow of this.state.shadows) {
+            shadow.visible = false;
         }
     }
 
