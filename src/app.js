@@ -6,14 +6,13 @@
  * handles window resizes.
  *
  */
-import { WebGLRenderer, PerspectiveCamera, Vector3, Vector2, Layers, ShaderMaterial, MeshBasicMaterial } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Vector3, Vector2, ShaderMaterial, MeshBasicMaterial } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SeedScene } from 'scenes';
 import { Block } from 'objects';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { HalftonePass } from 'three/examples/jsm/postprocessing/HalftonePass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 
 // Initialize core ThreeJS components
@@ -54,15 +53,7 @@ var params = {
 
 var renderScene = new RenderPass( scene, camera );
 
-
-composer = new EffectComposer( renderer );
-//composer.renderToScreen = false;
-composer.addPass( renderScene );
-//composer.addPass( bloomPass );
-
-//var shaderPass = new ShaderPass(SepiaShader);
-//composer.addPass(shaderPass);
-var params2 = {
+/*var params2 = {
     shape: 1,
     radius: 4,
     rotateR: Math.PI / 12,
@@ -74,12 +65,7 @@ var params2 = {
     greyscale: false,
     disable: false
 };
-var halftonePass = new HalftonePass( window.innerWidth, window.innerHeight, params2 );
-
-//camera.layers.enable(1);
-var toneLayer = new Layers();
-toneLayer.set( 1 );
-//composer.addPass( halftonePass );
+var halftonePass = new HalftonePass( window.innerWidth, window.innerHeight, params2 );*/
 
 var bloomPass = new UnrealBloomPass( new Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
 bloomPass.threshold = params.bloomThreshold;
@@ -138,14 +124,9 @@ finalComposer.addPass( finalPass );
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
     controls.update();
-    //renderer.render( scene, camera);
     if (scene.state.Colors == "Neon") {
     var materials = {};
         for (let child of scene.children) {
-         /*if (child instanceof Block) {
-             child.layers.enable(1);
-         }*/
-        // if ( toneLayer.test( child.layers ) === false ) {
             if (!(child instanceof Block)) {
                 if (child.isMesh) {
                     materials[ child.uuid ] = child.material;
@@ -199,7 +180,7 @@ window.addEventListener('resize', windowResizeHandler, false);
 
 
 const windowKeyHandler = (event) => {
-    const keys = ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", " "]
+    const keys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', ' ', 'Shift']
     if (keys.includes(event.key)) {
         scene.arrow(event.key);
     }
