@@ -46,7 +46,7 @@ class SeedScene extends Scene {
         // Populate GUI
         this.state.gui.add(this.state, 'Start');
         this.state.gui.add(this.state, 'Shape', [ 'Cube', 'Sphere' ]);
-        this.state.gui.add(this.state, 'Colors', [ 'Standard', 'Brick', 'Neon' ]);
+        this.state.gui.add(this.state, 'Colors', [ 'Standard', 'Brick', 'Marble', 'Neon' ]);
     }
 
     // start a new game
