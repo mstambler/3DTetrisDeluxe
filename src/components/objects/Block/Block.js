@@ -24,16 +24,6 @@ class Block extends Group {
 
         this.name = 'block';
         this.makeBlock(this.state.shape, parent);
-
-        // for (let offset of this.state.offsets) {
-        //     if (parent.state.board[this.position.x + offset.x][this.position.y + offset.y] !== undefined) {
-        //         this.position.y += 1;
-        //         this.state.continuousPos += 1;
-        //     }
-        // }
-
-        // Add self to parent's update list
-        // parent.addToUpdateList(this);
     }
 
     start() {
@@ -52,37 +42,6 @@ class Block extends Group {
     }
 
     makeBlock(shape, parent) {
-       // const texture = new TextureLoader().load( TEXTURE );
-       // let material;
-        /*material = new ShaderMaterial( {
-
-            uniforms: {},
-
-            vertexShader: [
-                "varying vec2 vUV;",
-                "varying vec3 vNormal;",
-
-                "void main() {",
-
-                "vUV = uv;",
-                "vNormal = vec3( normal );",
-                "gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
-
-                "}"
-            ].join( "\n" ),
-
-            fragmentShader: [
-                "varying vec2 vUV;",
-                "varying vec3 vNormal;",
-
-                "void main() {",
-
-                "vec4 c = vec4( abs( vNormal ) + vec3( vUV, 0.0 ), 0.0 );",
-                "gl_FragColor = c;",
-
-                "}"
-            ].join( "\n" )
-        } );*/
         let color;
         switch(shape) {
             case 0: { // O
@@ -179,11 +138,45 @@ class Block extends Group {
                 material = new MeshBasicMaterial({map: texture});
                 shadowMaterial = new LineDashedMaterial({color: 0x633e3c, linewidth: 4});
                 break;
-        }
+            case 'Neon':
+                material = new MeshPhongMaterial({color: color});
+                shadowMaterial = new LineDashedMaterial({color: material.color, linewidth: 4});
+                break;
+            case 'Rainbow':
+                material = new ShaderMaterial( {
+                    uniforms: {},
+
+                    vertexShader: [
+                        "varying vec2 vUV;",
+                        "varying vec3 vNormal;",
+
+                        "void main() {",
+
+                        "vUV = uv;",
+                        "vNormal = vec3( normal );",
+                        "gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+
+                        "}"
+                    ].join( "\n" ),
+
+                    fragmentShader: [
+                        "varying vec2 vUV;",
+                        "varying vec3 vNormal;",
+
+                        "void main() {",
+
+                        "vec4 c = vec4( abs( vNormal ) + vec3( vUV, 0.0 ), 0.0 );",
+                        "gl_FragColor = c;",
+
+                        "}"
+                    ].join( "\n" )
+                } );
+                shadowMaterial = new LineDashedMaterial({color: 0x121db8, linewidth: 4});
+            }
 
         for (let i = 0; i < this.state.offsets.length; i++) {
             // make cube and translate
-            const mesh = new Mesh(geometry, material);
+            const mesh = new Mesh(geometry, material.clone());
             mesh.translateX(this.state.offsets[i].x);
             mesh.translateY(this.state.offsets[i].y);
 

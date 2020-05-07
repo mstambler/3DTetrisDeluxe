@@ -2,6 +2,7 @@ import * as Dat from 'dat.gui';
 import { Scene, Color, TextGeometry, MeshPhongMaterial, Mesh, Font} from 'three';
 import { Block, Floor, Grid } from 'objects';
 import { BasicLights } from 'lights';
+import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
 
 class SeedScene extends Scene {
     constructor() {
@@ -44,7 +45,7 @@ class SeedScene extends Scene {
         // Populate GUI
         this.state.gui.add(this.state, 'Start');
         this.state.gui.add(this.state, 'Shape', [ 'Cube', 'Sphere' ]);
-        this.state.gui.add(this.state, 'Colors', [ 'Standard', 'Brick' ]);
+        this.state.gui.add(this.state, 'Colors', [ 'Standard', 'Brick', 'Neon', 'Rainbow' ]);
     }
 
     startGame() {
@@ -171,21 +172,30 @@ class SeedScene extends Scene {
         }
 
         let rowsCleared = 0;
-        for (let i = 9.5; i > -10; i -= 1) {
+        for (let i = -9.5; i < 10; i += 1) {
             let count = 0;
             for (let j = 4.5; j > -5; j -= 1) {
                 if (this.state.board[j][i] != undefined) {
                     count += 1;
                 }
             }
+
             if (count == 10) {
                 rowsCleared += 1;
                 // remove row
+                const cubes = [];
+                const flashTweens = [];
+                const fallTweenCols = [];
                 for (let j = -4.5; j < 5; j += 1) {
                     const cube = this.state.board[j][i];
                     this.state.board[j][i] = undefined;
-                    cube.parent.remove(cube);
+                    // create a color change tween and remember its corresponding cube
+                    const flash = new TWEEN.Tween(cube.material.color).to({r: 1.0, g: 1.0, b: 1.0}, 800).easing(TWEEN.Easing.Exponential.In);
+                    cubes[j] = cube;
+                    flashTweens[j] = flash;
+                    fallTweenCols[j] = [];
                 }
+
                 // shift rows down
                 // go through all rows including and above i
                 for (let k = i; k < 10; k += 1) {
@@ -193,9 +203,22 @@ class SeedScene extends Scene {
                         const blockAbove = this.state.board[j][k + 1];
                         this.state.board[j][k] = blockAbove;
                         if (blockAbove != undefined) {
-                            blockAbove.translateY(-1);
+                            const fall = new TWEEN.Tween(blockAbove.position).to({y: blockAbove.position.y - rowsCleared}, 500).easing(TWEEN.Easing.Linear.None);
+                            fallTweenCols[j].push(fall);
                         }
                     }
+                }
+                i -= 1;
+
+                // do color change then remove block then have blocks above it fall
+                for (let j = -4.5; j < 5; j += 1) {
+                    flashTweens[j].onComplete(() => {
+                        cubes[j].parent.remove(cubes[j]);
+                        for (let fallTween of fallTweenCols[j]) {
+                            fallTween.start();
+                        }
+                    });
+                    flashTweens[j].start();
                 }
             }
         }
@@ -227,10 +250,18 @@ class SeedScene extends Scene {
     update(timeStamp) {
         const { updateList } = this.state;
 
+        if (this.state.Colors == "Neon") {
+            this.background = undefined;
+        }
+        else {
+            this.background = new Color(0x7ec0ee);
+        }
         // Call update for each object in the updateList
         for (const obj of updateList) {
             obj.update(timeStamp);
         }
+
+        TWEEN.update();
     }
 
     arrow(key) {
