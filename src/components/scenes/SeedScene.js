@@ -190,7 +190,7 @@ class SeedScene extends Scene {
                     const cube = this.state.board[j][i];
                     this.state.board[j][i] = undefined;
                     // create a color change tween and remember its corresponding cube
-                    const flash = new TWEEN.Tween(cube.material.color).to({r: 1.0, g: 1.0, b: 1.0}, 800).easing(TWEEN.Easing.Linear.None);
+                    const flash = new TWEEN.Tween(cube.material.color).to({r: 1.0, g: 1.0, b: 1.0}, 800).easing(TWEEN.Easing.Exponential.In);
                     cubes[j] = cube;
                     flashTweens[j] = flash;
                     fallTweenCols[j] = [];
