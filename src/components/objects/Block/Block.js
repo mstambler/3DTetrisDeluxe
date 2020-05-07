@@ -131,11 +131,11 @@ class Block extends Group {
         let shadowMaterial;
         switch(parent.state.Colors) {
             case 'Standard':
-                material = new MeshPhongMaterial({color: color});
+                material = new MeshPhongMaterial({color: color, transparent: true});
                 shadowMaterial = new LineDashedMaterial({color: material.color, linewidth: 4});
                 break;
             case 'Brick':
-                material = new MeshBasicMaterial({map: texture});
+                material = new MeshBasicMaterial({map: texture, transparent: true});
                 shadowMaterial = new LineDashedMaterial({color: 0x633e3c, linewidth: 4});
                 break;
             case 'Neon':
@@ -183,7 +183,7 @@ class Block extends Group {
             // make outline
             if (parent.state.Shape == 'Cube') {
                 const edgesGeometry = new EdgesGeometry(geometry);
-                const edgesMaterial = new LineBasicMaterial({color: 0x000000, linewidth: 4});
+                const edgesMaterial = new LineBasicMaterial({color: 0x000000, linewidth: 4, transparent: true});
                 const edges = new LineSegments(edgesGeometry, edgesMaterial);
                 mesh.add(edges);
             }
