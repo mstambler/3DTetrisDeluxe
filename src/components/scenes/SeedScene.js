@@ -54,8 +54,9 @@ class SeedScene extends Scene {
         this.state.rows = 0;
         this.state.speed = 0.02;
 
-        if (this.state.curBlock != undefined) {
+        if (this.state.nextBlock != undefined) {
             this.state.curBlock = undefined;
+            this.state.nextBlock = undefined;
             this.removeFromUpdateList();
         }
 
@@ -83,7 +84,6 @@ class SeedScene extends Scene {
         this.updateScoreKeeper();
         this.addBlock();
         this.addBlock();
-        this.state.curBlock.start();
     }
 
     makeNext() {
@@ -109,6 +109,7 @@ class SeedScene extends Scene {
     addBlock() {
         const newBlock = new Block(this);
         this.state.curBlock = this.state.nextBlock;
+        this.state.curBlock && this.state.curBlock.start();
         this.state.nextBlock = newBlock;
         this.add(newBlock);
     }
@@ -127,7 +128,7 @@ class SeedScene extends Scene {
         // check for game over
         if (this.gameOver()) {
             this.state.curBlock = undefined;
-            this.state.newBlock = undefined;
+            this.state.nextBlock = undefined;
 
             const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
             const font = new Font(fontJson);
@@ -170,8 +171,10 @@ class SeedScene extends Scene {
             const offset = this.state.curBlock.state.offsets[i];
             this.state.board[x + offset.x][y + offset.y] = this.state.curBlock.state.cubes[i];
         }
+        this.state.curBlock = undefined;
 
         let rowsCleared = 0;
+        let madeTween = false;
         for (let i = -9.5; i < 10; i += 1) {
             let count = 0;
             for (let j = 4.5; j > -5; j -= 1) {
@@ -190,9 +193,11 @@ class SeedScene extends Scene {
                     const cube = this.state.board[j][i];
                     this.state.board[j][i] = undefined;
                     // create a color change tween and remember its corresponding cube
-                    const flash = new TWEEN.Tween(cube.material.color).to({r: 1.0, g: 1.0, b: 1.0}, 800).easing(TWEEN.Easing.Exponential.In);
+                    const flash = new TWEEN.Tween(cube.material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
+                    const flashColor = new TWEEN.Tween(cube.material.color).to({r: 1.0, g: 1.0, b: 1.0}, 500).easing(TWEEN.Easing.Linear.None);
+                    const flashEdge = new TWEEN.Tween(cube.children[0].material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
                     cubes[j] = cube;
-                    flashTweens[j] = flash;
+                    flashTweens[j] = [flash, flashColor, flashEdge];
                     fallTweenCols[j] = [];
                 }
 
@@ -203,7 +208,11 @@ class SeedScene extends Scene {
                         const blockAbove = this.state.board[j][k + 1];
                         this.state.board[j][k] = blockAbove;
                         if (blockAbove != undefined) {
-                            const fall = new TWEEN.Tween(blockAbove.position).to({y: blockAbove.position.y - rowsCleared}, 500).easing(TWEEN.Easing.Linear.None);
+                            const fall = new TWEEN.Tween(blockAbove.position).to({y: blockAbove.position.y - rowsCleared}, 300).easing(TWEEN.Easing.Quadratic.In);
+                            if (!madeTween) {
+                                fall.onComplete(this.addBlock.bind(this));
+                                madeTween = true;
+                            }
                             fallTweenCols[j].push(fall);
                         }
                     }
@@ -212,13 +221,15 @@ class SeedScene extends Scene {
 
                 // do color change then remove block then have blocks above it fall
                 for (let j = -4.5; j < 5; j += 1) {
-                    flashTweens[j].onComplete(() => {
+                    flashTweens[j][0].onComplete(() => {
                         cubes[j].parent.remove(cubes[j]);
                         for (let fallTween of fallTweenCols[j]) {
                             fallTween.start();
                         }
                     });
-                    flashTweens[j].start();
+                    flashTweens[j][0].start();
+                    flashTweens[j][1].start();
+                    flashTweens[j][2].start();
                 }
             }
         }
@@ -233,10 +244,9 @@ class SeedScene extends Scene {
             }
             if (this.state.score > this.state.highScore) this.state.highScore = this.state.score;
             this.updateScoreKeeper();
+        } else {
+            this.addBlock();
         }
-
-        this.addBlock();
-        this.state.curBlock.start();
     }
 
     addToUpdateList(object) {
