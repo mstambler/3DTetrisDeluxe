@@ -5,7 +5,7 @@ import { BasicLights } from 'lights';
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
 
 class SeedScene extends Scene {
-    constructor() {
+    constructor(left) {
         // Call parent Scene() constructor
         super();
 
@@ -35,6 +35,7 @@ class SeedScene extends Scene {
         // Add meshes to scene
         const floor = new Floor(this);
         const grid = new Grid(this);
+        
         const lights = new BasicLights();
         this.add(floor, grid, lights);
 
@@ -60,6 +61,7 @@ class SeedScene extends Scene {
             this.removeFromUpdateList();
         }
 
+        
         // Create grid
         for (let i = -4.5; i < 5; i += 1) {
             if (this.state.board[i] == undefined) {
