@@ -139,7 +139,7 @@ class Block extends Group {
                 shadowMaterial = new LineDashedMaterial({color: 0x633e3c, linewidth: 4});
                 break;
             case 'Neon':
-                material = new MeshPhongMaterial({color: color});
+                material = new MeshPhongMaterial({color: color, transparent: true});
                 shadowMaterial = new LineDashedMaterial({color: material.color, linewidth: 4});
                 break;
         }
