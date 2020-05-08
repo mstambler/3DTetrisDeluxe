@@ -1,5 +1,6 @@
-import { Group, Mesh, BoxBufferGeometry, SphereBufferGeometry, MeshPhongMaterial, TextureLoader, MeshBasicMaterial, ShaderMaterial } from 'three';
-import { EdgesGeometry, LineBasicMaterial, LineDashedMaterial, LineSegments } from 'three';
+import { Group, Mesh, BoxBufferGeometry, SphereBufferGeometry, MeshPhongMaterial, MeshBasicMaterial } from 'three';
+import { EdgesGeometry, LineBasicMaterial, LineDashedMaterial, LineSegments, TextureLoader } from 'three';
+import { Powerup } from 'objects';
 import TEXTURE_BRICK from './brick.jpg';
 import TEXTURE_MARBLE from './marble.jpg';
 
@@ -19,6 +20,7 @@ class Block extends Group {
             offsets: [],
             shadows: [],
             paused: false,
+            powerup: undefined,
         };
 
         // starting position
@@ -27,6 +29,11 @@ class Block extends Group {
 
         this.name = 'block';
         this.makeBlock(this.state.shape, parent);
+        
+        if (Math.random() < 0.5) {
+            this.state.powerup = new Powerup(this);
+            this.add(this.state.powerup);
+        }
     }
 
     start() {
@@ -507,6 +514,7 @@ class Block extends Group {
                         }
                     }
                 }
+                this.state.powerup && this.state.powerup.update();
                 this.updateShadow(this.parent);
                 break;
         }

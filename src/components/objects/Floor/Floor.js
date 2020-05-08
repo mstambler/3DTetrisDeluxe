@@ -1,4 +1,4 @@
-import { Group, MeshBasicMaterial, Mesh, DoubleSide, PlaneBufferGeometry } from 'three';
+import { Group, MeshBasicMaterial, Mesh, PlaneBufferGeometry } from 'three';
 
 class Floor extends Group {
     constructor(parent) {
@@ -14,7 +14,7 @@ class Floor extends Group {
 
         // Make floor
         const geometry = new PlaneBufferGeometry(12, 4).rotateX(-0.5*Math.PI);
-        const material = new MeshBasicMaterial({color: 0x555555, side: DoubleSide});
+        const material = new MeshBasicMaterial({color: 0x555555});
         const mesh = new Mesh(geometry, material);
 
         // add to mesh
