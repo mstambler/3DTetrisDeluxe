@@ -52,10 +52,10 @@ bloomLayer.set(1);
 const darkMaterial = new MeshBasicMaterial({color: 'black'});
 const materials = {};
 const params = {
-    exposure: 1,
-	bloomStrength: 1,
+    exposure: 0.5,
+	bloomStrength: 0.5,
 	bloomThreshold: 0,
-	bloomRadius: 3
+	bloomRadius: 1
 };
 
 // regular render pass
@@ -120,6 +120,7 @@ const findBlocks = (obj) => {
 
 // temporarily set all non bloom layer objects to black
 const darkenNonBloomed = (obj) => {
+    renderer.setClearColor(0x000000);
     if (bloomLayer.test(obj.layers) === false) {
         materials[obj.uuid] = obj.material;
         obj.material = darkMaterial;
@@ -128,6 +129,7 @@ const darkenNonBloomed = (obj) => {
 
 // restore non bloom layer materials
 const restoreMaterial = (obj) => {
+    renderer.setClearColor(0x7ec0ee);
     if (materials[obj.uuid]) {
         obj.material = materials[obj.uuid];
         delete materials[obj.uuid];

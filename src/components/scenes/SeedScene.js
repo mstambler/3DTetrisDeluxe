@@ -1,5 +1,5 @@
 import * as Dat from 'dat.gui';
-import { Scene, Color, TextGeometry, MeshPhongMaterial, Mesh, Font} from 'three';
+import { Scene, Color, TextGeometry, MeshPhongMaterial, Mesh, Font, Fog} from 'three';
 import { Block, Floor, Grid } from 'objects';
 import { BasicLights } from 'lights';
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
@@ -30,10 +30,8 @@ class SeedScene extends Scene {
             speed: 0.02,
         };
 
-        // this.background = new Color(0xffffff);
-	    // gameScene.fog = new THREE.Fog( Colors.background, 0, 750 );
-
         // Set background to a nice color
+        // this.background = 0x7ec0ee;
         this.rowPoints = [40, 100, 300, 1200];
 
         // Add meshes to scene
