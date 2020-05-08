@@ -32,6 +32,7 @@ class Block extends Group {
     start() {
         this.position.x = 0.5;
         this.position.y = 9.5;
+        this.state.continuousPos = 10;
 
         for (let offset of this.state.offsets) {
             if (this.parent.state.board[this.position.x + offset.x][this.position.y + offset.y] !== undefined) {

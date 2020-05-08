@@ -6,7 +6,7 @@
  * handles window resizes.
  *
  */
-import { WebGLRenderer, PerspectiveCamera, Vector3, Vector2, ShaderMaterial, MeshBasicMaterial, ReinhardToneMapping } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Vector2, ShaderMaterial, MeshBasicMaterial, Layers } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SeedScene } from 'scenes';
 import { Block } from 'objects';
@@ -22,7 +22,7 @@ const renderer = new WebGLRenderer({antialias: true});
 
 // Set up camera
 camera.position.set(0, 0, -30);
-camera.lookAt(new Vector3(0, 0, 0));
+camera.lookAt(0, 0, 0);
 
 // Set up renderer, canvas, and minor CSS adjustments
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -44,39 +44,34 @@ controls.minPolarAngle = 0;
 controls.maxPolarAngle = Math.PI/2 + 0.05;
 controls.update();
 
+// bloom stuff
+const bloomLayer = new Layers();
+bloomLayer.set(1);
+const darkMaterial = new MeshBasicMaterial({color: 'black'});
+const materials = {};
 const params = {
-    //exposure: 1,
-	bloomStrength: 2,
-	bloomThreshold: 0.1,
+    exposure: 0,
+	bloomStrength: 0.75,
+	bloomThreshold: 0,
 	bloomRadius: 0
 };
 
+// regular render pass
 const renderScene = new RenderPass(scene, camera);
 
-/*var params2 = {
-    shape: 1,
-    radius: 4,
-    rotateR: Math.PI / 12,
-    rotateB: Math.PI / 12 * 2,
-    rotateG: Math.PI / 12 * 3,
-    scatter: 0,
-    blending: 1,
-    blendingMode: 1,
-    greyscale: false,
-    disable: false
-};
-var halftonePass = new HalftonePass( window.innerWidth, window.innerHeight, params2 );*/
-
+// bloom pass
 const bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
 bloomPass.threshold = params.bloomThreshold;
 bloomPass.strength = params.bloomStrength;
 bloomPass.radius = params.bloomRadius;
 
+// bloom composer
 const bloomComposer = new EffectComposer(renderer);
 bloomComposer.renderToScreen = false;
 bloomComposer.addPass(renderScene);
 bloomComposer.addPass(bloomPass);
 
+// final pass
 const finalPass = new ShaderPass(
     new ShaderMaterial({
         uniforms: {
@@ -106,47 +101,44 @@ const finalPass = new ShaderPass(
 );
 finalPass.needsSwap = true;
 
+// final composer
 const finalComposer = new EffectComposer(renderer);
 finalComposer.addPass(renderScene);
 finalComposer.addPass(finalPass);
+
+// set all Block objects to bloom layer
+const findBlocks = (obj) => {
+    if (obj instanceof Block) {
+        obj.layers.enable(1);
+        for (let child of obj.children)
+            child.layers.enable(1);
+    }
+}
+
+// temporarily set all non bloom layer objects to black
+const darkenNonBloomed = (obj) => {
+    if (obj.isMesh && bloomLayer.test(obj.layers) === false) {
+        materials[obj.uuid] = obj.material;
+        obj.material = darkMaterial;
+    }
+}
+
+// restore non bloom layer materials
+const restoreMaterial = (obj) => {
+    if (materials[obj.uuid]) {
+        obj.material = materials[obj.uuid];
+        delete materials[obj.uuid];
+    }
+}
 
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
     controls.update();
     if (scene.state.Colors == "Neon") {
-        const materials = {};
-        for (let child of scene.children) {
-            if (!(child instanceof Block)) {
-                if (child.isMesh) {
-                    materials[child.uuid] = child.material;
-                    child.material = new MeshBasicMaterial({ color: "black" });
-                    if (child.children.length > 0) {
-                        materials[child.children[0].uuid] = child.children[0].material;
-                        child.children[0].material = new MeshBasicMaterial({color: "black"});
-                    }
-                }
-                else {
-                    materials[child.children[0].uuid] = child.children[0].material;
-                    child.children[0].material = new MeshBasicMaterial({color: "black"});
-                }
-            }
-        }
+        scene.traverse(findBlocks);
+        scene.traverse(darkenNonBloomed);
         bloomComposer.render();
-        
-        for (let child of scene.children) {
-            if (child.isMesh) {
-                child.material = materials[child.uuid];
-                delete materials[child.uuid];
-                if (child.children.length > 0) {
-                    child.children[0].material = materials[child.children[0].uuid];
-                    delete materials[child.children[0].uuid];
-                }
-            }
-            else if (child.children.length > 0 && materials[child.children[0].uuid]) {
-                child.children[0].material = materials[child.children[0].uuid];
-                delete materials[child.children[0].uuid];
-            }
-        }
+        scene.traverse(restoreMaterial);
         finalComposer.render();
     }
     else {
@@ -161,13 +153,15 @@ window.requestAnimationFrame(onAnimationFrameHandler);
 const windowResizeHandler = () => {
     const { innerHeight, innerWidth } = window;
     renderer.setSize(innerWidth, innerHeight);
+    bloomComposer.setSize(innerWidth, innerHeight);
+    finalComposer.setSize(innerWidth, innerHeight);
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
 };
 windowResizeHandler();
 window.addEventListener('resize', windowResizeHandler, false);
 
-
+// Key handler
 const windowKeyHandler = (event) => {
     const keys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', ' ', 'Shift']
     if (keys.includes(event.key)) {
