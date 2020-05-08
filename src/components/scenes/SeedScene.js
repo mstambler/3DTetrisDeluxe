@@ -190,7 +190,7 @@ class SeedScene extends Scene {
             mesh.position.z = -5;
             mesh.name = 'game_over';
 
-            const scoreGeo = new TextGeometry( String('Score: ' + this.state.score), {
+            const scoreGeo = new TextGeometry(String('Score: ' + this.state.score), {
                 font: font,
                 size: 3,
                 height: 1,
@@ -239,10 +239,13 @@ class SeedScene extends Scene {
                     // create a color change tween and remember its corresponding cube
                     const flash = new TWEEN.Tween(cube.material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
                     const flashColor = new TWEEN.Tween(cube.material.color).to({r: 1.0, g: 1.0, b: 1.0}, 500).easing(TWEEN.Easing.Linear.None);
-                    const flashEdge = new TWEEN.Tween(cube.children[0].material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
                     cubes[j] = cube;
-                    flashTweens[j] = [flash, flashColor, flashEdge];
+                    flashTweens[j] = [flash, flashColor];
                     fallTweenCols[j] = [];
+                    if (cube.parent.state.geo != 'Sphere') {
+                        const flashEdge = new TWEEN.Tween(cube.children[0].material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
+                        flashTweens[j].push(flashEdge);
+                    }
                 }
 
                 // shift rows down
@@ -273,7 +276,9 @@ class SeedScene extends Scene {
                     });
                     flashTweens[j][0].start();
                     flashTweens[j][1].start();
-                    flashTweens[j][2].start();
+                    if (cubes[j].parent.state.geo != 'Sphere') {
+                        flashTweens[j][2].start();
+                    }
                 }
             }
         }

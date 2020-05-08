@@ -1,7 +1,7 @@
 import { Group, Mesh, BoxBufferGeometry, SphereBufferGeometry, MeshPhongMaterial, TextureLoader, MeshBasicMaterial, ShaderMaterial } from 'three';
 import { EdgesGeometry, LineBasicMaterial, LineDashedMaterial, LineSegments } from 'three';
 import TEXTURE_BRICK from './brick.jpg';
-import TEXTURE_MARBLE from './marble.jpg';
+//import TEXTURE_MARBLE from './marble.jpg';
 
 
 class Block extends Group {
@@ -13,6 +13,7 @@ class Block extends Group {
         this.state = {
             gui: parent.state.gui,
             shape: Math.floor(Math.random()*7),
+            geo: 'Cube',
             continuousPos: 10,
             cubes: [],
             offsets: [],
@@ -124,6 +125,7 @@ class Block extends Group {
         }
 
         let geometry;
+        this.state.geo = parent.state.Shape;
         switch(parent.state.Shape) {
             case 'Cube':
                 geometry = new BoxBufferGeometry(1, 1, 1);
