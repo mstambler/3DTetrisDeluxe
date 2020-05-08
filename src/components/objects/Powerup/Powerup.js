@@ -1,6 +1,7 @@
 import { Group, MeshBasicMaterial, CircleBufferGeometry, Mesh, DoubleSide, TextureLoader} from 'three';
 import TEXTURE_FLASH from './flash.jpg';
 import TEXTURE_SNAIL from './snail.png';
+import TEXTURE_BOMB from './bomb.png';
 
 
 class Powerup extends Group {
@@ -11,7 +12,7 @@ class Powerup extends Group {
         // Init state
         this.state = {
             gui: parent.state.gui,
-            type: Math.floor(Math.random()*2),
+            type: Math.floor(Math.random()*3),
             r: -1,
         };
 
@@ -33,6 +34,9 @@ class Powerup extends Group {
             case 1: // snail
                 texture = new TextureLoader().load(TEXTURE_SNAIL);
                 break;
+            case 2: // bomb
+                texture = new TextureLoader().load(TEXTURE_BOMB);
+                break;
         }
         const material = new MeshBasicMaterial({map: texture, side: DoubleSide, transparent: true});
         const circle = new Mesh(geometry, material);
@@ -43,15 +47,26 @@ class Powerup extends Group {
         this.add(circle);
     }
 
-    execute() {
+    execute(val, orient) {
+        let scene = this.parent.parent.parent;
         switch (this.state.type) {
             case 0: // flash
-                this.parent.parent.state.speed += 0.01;
+                scene.state.speed += 0.01;
                 alert("speed up!");
                 break;
             case 1: // snail
-                this.parent.parent.state.speed -= 0.01;
+                scene.state.speed -= 0.01;
                 alert("slow down!");
+                break;
+            case 2: // bomb
+                if (orient == "col") {
+                    for (let i = -9.5; i < 10; i += 1) {
+                        if (scene.state.board[val][i] != undefined) {
+                            const cube = scene.state.board[col][i];
+                            scene.state.board[val][i] = undefined;
+                        }
+                    }
+                }
                 break;
         }
     }
