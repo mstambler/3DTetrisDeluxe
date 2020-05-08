@@ -12,6 +12,8 @@ class Powerup extends Group {
             r: -1,
         };
 
+        //debugger;
+
         this.name = 'powerup';
 
         this.state.r = Math.floor(Math.random()*4);

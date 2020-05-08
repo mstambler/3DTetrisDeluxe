@@ -243,12 +243,15 @@ class SeedScene extends Scene {
                     cubes[j] = cube;
                     flashTweens[j] = [flash, flashColor];
                     fallTweenCols[j] = [];
+                    let powerupIndex = 0;
                     if (cube.parent.state.geo != 'Sphere') {
+                        powerupIndex = 1;
                         const flashEdge = new TWEEN.Tween(cube.children[0].material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
                         flashTweens[j].push(flashEdge);
                     }
-                    if (cube.children[1]) {
-                        const powerupMesh = cube.children[1].children[0];
+                    
+                    if (cube.children[powerupIndex]) {
+                        const powerupMesh = cube.children[powerupIndex].children[0];
                         const flashPowerup = new TWEEN.Tween(powerupMesh.material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
                         const flashPowerupColor = new TWEEN.Tween(powerupMesh.material.color).to({r: 1.0}, 700).easing(TWEEN.Easing.Linear.None);
                         flashTweens[j].push(flashPowerup, flashPowerupColor)
