@@ -32,7 +32,7 @@ class Block extends Group {
         
         if (Math.random() < 0.5) {
             this.state.powerup = new Powerup(this);
-            this.add(this.state.powerup);
+            this.state.cubes[this.state.powerup.state.r].add(this.state.powerup);
         }
     }
 
@@ -514,7 +514,6 @@ class Block extends Group {
                         }
                     }
                 }
-                this.state.powerup && this.state.powerup.update();
                 this.updateShadow(this.parent);
                 break;
         }

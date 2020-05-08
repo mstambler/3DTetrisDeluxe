@@ -247,6 +247,12 @@ class SeedScene extends Scene {
                         const flashEdge = new TWEEN.Tween(cube.children[0].material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
                         flashTweens[j].push(flashEdge);
                     }
+                    if (cube.children[1]) {
+                        const powerupMesh = cube.children[1].children[0];
+                        const flashPowerup = new TWEEN.Tween(powerupMesh.material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
+                        const flashPowerupColor = new TWEEN.Tween(powerupMesh.material.color).to({r: 1.0}, 700).easing(TWEEN.Easing.Linear.None);
+                        flashTweens[j].push(flashPowerup, flashPowerupColor)
+                    }
                 }
 
                 // shift rows down
@@ -261,6 +267,7 @@ class SeedScene extends Scene {
                                 fall.onComplete(this.addBlock.bind(this));
                                 madeTween = true;
                             }
+
                             fallTweenCols[j].push(fall);
                         }
                     }
@@ -275,10 +282,9 @@ class SeedScene extends Scene {
                             fallTween.start();
                         }
                     });
-                    flashTweens[j][0].start();
-                    flashTweens[j][1].start();
-                    if (cubes[j].parent.state.geo != 'Sphere') {
-                        flashTweens[j][2].start();
+
+                    for (let flashTween of flashTweens[j]) {
+                        flashTween.start();
                     }
                 }
             }
