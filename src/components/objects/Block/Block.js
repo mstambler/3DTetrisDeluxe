@@ -30,6 +30,7 @@ class Block extends Group {
         this.name = 'block';
         this.makeBlock(this.state.shape, parent);
         
+        // will change to smaller percentage once this works
         if (Math.random() < 0.5) {
             this.state.powerup = new Powerup(this);
             this.state.cubes[this.state.powerup.state.r].add(this.state.powerup);

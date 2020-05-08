@@ -10,7 +10,7 @@ import { WebGLRenderer, PerspectiveCamera, Vector2, MeshBasicMaterial  } from 't
 import { ShaderMaterial, Layers, ReinhardToneMapping, NoToneMapping } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SeedScene } from 'scenes';
-import { Block, Grid } from 'objects';
+import { Block, Powerup } from 'objects';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
@@ -110,7 +110,7 @@ finalComposer.addPass(finalPass);
 
 // set all Block objects to bloom layer
 const findBlocks = (obj) => {
-    if (obj instanceof Block) {
+    if (obj instanceof Block || obj instanceof Powerup) {
         obj.layers.enable(1);
         for (let child of obj.children) {
             child.layers.enable(1);
