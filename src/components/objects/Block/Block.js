@@ -1,7 +1,7 @@
 import { Group, Mesh, BoxBufferGeometry, SphereBufferGeometry, MeshPhongMaterial, TextureLoader, MeshBasicMaterial, ShaderMaterial } from 'three';
 import { EdgesGeometry, LineBasicMaterial, LineDashedMaterial, LineSegments } from 'three';
 import TEXTURE_BRICK from './brick.jpg';
-//import TEXTURE_MARBLE from './marble.jpg';
+import TEXTURE_MARBLE from './marble.jpg';
 
 
 class Block extends Group {
