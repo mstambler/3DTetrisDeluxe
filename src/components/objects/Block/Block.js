@@ -165,7 +165,7 @@ class Block extends Group {
             const mesh = new Mesh(geometry, material.clone());
             mesh.translateX(this.state.offsets[i].x);
             mesh.translateY(this.state.offsets[i].y);
-
+            
             // make outline
             if (parent.state.Shape == 'Cube') {
                 const edgesGeometry = new EdgesGeometry(geometry);
@@ -179,10 +179,10 @@ class Block extends Group {
             const shadow = new LineSegments(shadowGeom, shadowMaterial);
             shadow.translateX(this.state.offsets[i].x);
             shadow.translateY(this.state.offsets[i].y);
-            this.state.shadows.push(shadow);
 
             // add to block
             this.state.cubes.push(mesh);
+            this.state.shadows.push(shadow);
             this.add(mesh);
             this.add(shadow);
         }

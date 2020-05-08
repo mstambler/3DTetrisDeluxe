@@ -30,6 +30,9 @@ class SeedScene extends Scene {
             speed: 0.02,
         };
 
+        // this.background = new Color(0xffffff);
+	    // gameScene.fog = new THREE.Fog( Colors.background, 0, 750 );
+
         // Set background to a nice color
         this.rowPoints = [40, 100, 300, 1200];
 

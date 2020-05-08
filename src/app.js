@@ -6,10 +6,11 @@
  * handles window resizes.
  *
  */
-import { WebGLRenderer, PerspectiveCamera, Vector2, ShaderMaterial, MeshBasicMaterial, Layers } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Vector2, MeshBasicMaterial  } from 'three';
+import { ShaderMaterial, Layers, ReinhardToneMapping, NoToneMapping } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SeedScene } from 'scenes';
-import { Block } from 'objects';
+import { Block, Grid } from 'objects';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
@@ -26,7 +27,8 @@ camera.lookAt(0, 0, 0);
 
 // Set up renderer, canvas, and minor CSS adjustments
 renderer.setPixelRatio(window.devicePixelRatio);
-// renderer.toneMapping = ReinhardToneMapping;
+
+// canvas
 const canvas = renderer.domElement;
 canvas.style.display = 'block'; // Removes padding below canvas
 document.body.style.margin = 0; // Removes margin around page
@@ -50,10 +52,10 @@ bloomLayer.set(1);
 const darkMaterial = new MeshBasicMaterial({color: 'black'});
 const materials = {};
 const params = {
-    exposure: 0,
-	bloomStrength: 0.75,
+    exposure: 1,
+	bloomStrength: 1,
 	bloomThreshold: 0,
-	bloomRadius: 0
+	bloomRadius: 3
 };
 
 // regular render pass
@@ -110,14 +112,15 @@ finalComposer.addPass(finalPass);
 const findBlocks = (obj) => {
     if (obj instanceof Block) {
         obj.layers.enable(1);
-        for (let child of obj.children)
+        for (let child of obj.children) {
             child.layers.enable(1);
+        }
     }
 }
 
 // temporarily set all non bloom layer objects to black
 const darkenNonBloomed = (obj) => {
-    if (obj.isMesh && bloomLayer.test(obj.layers) === false) {
+    if (bloomLayer.test(obj.layers) === false) {
         materials[obj.uuid] = obj.material;
         obj.material = darkMaterial;
     }
@@ -135,6 +138,7 @@ const restoreMaterial = (obj) => {
 const onAnimationFrameHandler = (timeStamp) => {
     controls.update();
     if (scene.state.Colors == "Neon") {
+        renderer.toneMapping = ReinhardToneMapping;
         scene.traverse(findBlocks);
         scene.traverse(darkenNonBloomed);
         bloomComposer.render();
@@ -142,6 +146,7 @@ const onAnimationFrameHandler = (timeStamp) => {
         finalComposer.render();
     }
     else {
+        renderer.toneMapping = NoToneMapping;
         renderer.render(scene, camera);
     }
     scene.update && scene.update(timeStamp);
