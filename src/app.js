@@ -59,6 +59,14 @@ const onAnimationFrameHandler = (timeStamp) => {
     if (sceneR.state.AddPlayer) {
         windowResizeHandler(); 
     }
+
+    if (sceneR.state.gameOver) {
+        sceneL.endGame("YOU WIN"); 
+    }
+    if (sceneL.state.gameOver) {
+        sceneR.endGame("YOU WIN"); 
+    }
+
     if (sceneR.state.started) {
         sceneL.startGame();  
         sceneR.state.started = false;

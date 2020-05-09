@@ -14,6 +14,7 @@ class SeedScene extends Scene {
             gui: new Dat.GUI(), // Create GUI for scene
             Start: this.startGame.bind(this),
             started: false,
+            gameover: false,
             Shape: 'Cube',
             Colors: 'Standard',
             AddPlayer: false,
@@ -126,49 +127,53 @@ class SeedScene extends Scene {
         const cur = this.state.curBlock;
         for (let offset of cur.state.offsets) {
             if (cur.position.y + offset.y > 9.5) {
+                this.state.gameOver = true; 
                 return true;
             }
         }
         return false;
     }
 
+    endGame(text) {
+        const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
+        const font = new Font(fontJson);
+
+        const geometry = new TextGeometry(text, {
+            font: font,
+            size: 5,
+            height: 1,
+            curveSegments: 10,
+            bevelEnabled: false,
+        });
+        const material = new MeshPhongMaterial({color: 0x87071c});
+        const mesh = new Mesh(geometry, material);
+        mesh.rotateY(Math.PI);
+        mesh.position.x = 20;
+        mesh.position.z = -5;
+        mesh.name = 'game_over';
+
+        const scoreGeo = new TextGeometry( String('Score: ' + this.state.score), {
+            font: font,
+            size: 3,
+            height: 1,
+            curveSegments: 10,
+            bevelEnabled: false,
+        });
+        const materialScore = new MeshPhongMaterial({color: 0x097025});
+        const meshScore = new Mesh(scoreGeo, materialScore);
+        meshScore.position.x = 12;
+        meshScore.position.y = -5;
+
+        mesh.add(meshScore);
+        this.add(mesh);
+    }
     updateBlock() {
         // check for game over
         if (this.gameOver()) {
             this.state.curBlock = undefined;
             this.state.nextBlock = undefined;
 
-            const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
-            const font = new Font(fontJson);
-
-            const geometry = new TextGeometry('GAME OVER', {
-                font: font,
-                size: 5,
-                height: 1,
-                curveSegments: 10,
-                bevelEnabled: false,
-            });
-            const material = new MeshPhongMaterial({color: 0x87071c});
-            const mesh = new Mesh(geometry, material);
-            mesh.rotateY(Math.PI);
-            mesh.position.x = 20;
-            mesh.position.z = -5;
-            mesh.name = 'game_over';
-
-            const scoreGeo = new TextGeometry( String('Score: ' + this.state.score), {
-                font: font,
-                size: 3,
-                height: 1,
-                curveSegments: 10,
-                bevelEnabled: false,
-            });
-            const materialScore = new MeshPhongMaterial({color: 0x097025});
-            const meshScore = new Mesh(scoreGeo, materialScore);
-            meshScore.position.x = 12;
-            meshScore.position.y = -5;
-
-            mesh.add(meshScore);
-            this.add(mesh);
+            this.endGame("GAME OVER"); 
             return;
         }
 
