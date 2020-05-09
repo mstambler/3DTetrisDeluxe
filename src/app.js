@@ -51,23 +51,42 @@ controlsR.maxPolarAngle = Math.PI/2 + 0.05;
 controlsR.update();
 
 renderer.setScissorTest(true);
+sceneL.state.gui.hide(); 
 
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
-    // left
-    renderer.setScissor(0, 0, window.innerWidth/2, window.innerHeight);
-    renderer.setViewport(0, 0, window.innerWidth/2, window.innerHeight);
-    controlsL.update()
-    renderer.render(sceneL, cameraL)
-    sceneL.update && sceneL.update(timeStamp);
-
     // right
-    renderer.setScissor(window.innerWidth/2, 0, window.innerWidth/2, window.innerHeight);
-    renderer.setViewport(window.innerWidth/2, 0, window.innerWidth/2, window.innerHeight);
+    if (sceneR.state.AddPlayer) {
+        windowResizeHandler(); 
+    }
+    if (sceneR.state.started) {
+        sceneL.startGame();  
+        sceneR.state.started = false;
+    }
+
+    var left = 0; 
+    var width = window.innerWidth; 
+    if (sceneR.state.AddPlayer) {
+        left = window.innerWidth/2;
+        width = window.innerWidth/2;
+        // sceneL.state.gui = sceneR.state.gui;
+    }
+    renderer.setScissor(left, 0, width, window.innerHeight);
+    renderer.setViewport(left, 0, width, window.innerHeight);
     controlsR.update()
     renderer.render(sceneR, cameraR)
+
     sceneR.update && sceneR.update(timeStamp);
-    
+
+    if (sceneR.state.AddPlayer) {
+        // left
+        renderer.setScissor(0, 0, window.innerWidth/2, window.innerHeight);
+        renderer.setViewport(0, 0, window.innerWidth/2, window.innerHeight);
+        controlsL.update()
+        renderer.render(sceneL, cameraL)
+        sceneL.update && sceneL.update(timeStamp);
+
+    }
     window.requestAnimationFrame(onAnimationFrameHandler);
 };
 window.requestAnimationFrame(onAnimationFrameHandler);
@@ -78,17 +97,28 @@ const windowResizeHandler = () => {
     renderer.setSize(innerWidth, innerHeight);
     cameraL.aspect = innerWidth / (2 * innerHeight);
     cameraL.updateProjectionMatrix();
-    cameraR.aspect = innerWidth / (2 * innerHeight);
-    cameraR.updateProjectionMatrix();
+    if (sceneR.state.AddPlayer) {
+        cameraR.aspect = innerWidth / (2 * innerHeight);
+        cameraR.updateProjectionMatrix();
+    } else {
+        cameraR.aspect = innerWidth / (innerHeight);
+        cameraR.updateProjectionMatrix();
+    }
+
+    
 };
 windowResizeHandler();
 window.addEventListener('resize', windowResizeHandler, false);
 
 
 const windowKeyHandler = (event) => {
-    const keys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', ' ']
-    if (keys.includes(event.key)) {
-        sceneL.arrow(event.key);
+    const keysR = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', ' ']
+    const keysL = ['w', 'a', 's', 'd', 'x']
+    if (keysR.includes(event.key)) {
+        sceneR.arrow(event.key); 
     }   
+    if (keysL.includes(event.key)) {
+        sceneL.arrow(event.key); 
+    }
 };
 window.addEventListener('keydown', windowKeyHandler, false);

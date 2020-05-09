@@ -5,7 +5,7 @@ import { BasicLights } from 'lights';
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
 
 class SeedScene extends Scene {
-    constructor(left) {
+    constructor() {
         // Call parent Scene() constructor
         super();
 
@@ -13,8 +13,10 @@ class SeedScene extends Scene {
         this.state = {
             gui: new Dat.GUI(), // Create GUI for scene
             Start: this.startGame.bind(this),
+            started: false,
             Shape: 'Cube',
             Colors: 'Standard',
+            AddPlayer: false,
             updateList: [],
             curBlock: null,
             nextBlock: null,
@@ -44,12 +46,16 @@ class SeedScene extends Scene {
         this.makeNext();
 
         // Populate GUI
-        this.state.gui.add(this.state, 'Start');
-        this.state.gui.add(this.state, 'Shape', [ 'Cube', 'Sphere' ]);
-        this.state.gui.add(this.state, 'Colors', [ 'Standard', 'Brick' ]);
+        
+            this.state.gui.add(this.state, 'Start');
+            this.state.gui.add(this.state, 'AddPlayer');
+            this.state.gui.add(this.state, 'Shape', [ 'Cube', 'Sphere' ]);
+            this.state.gui.add(this.state, 'Colors', [ 'Standard', 'Brick' ]);
+        
     }
 
     startGame() {
+        this.state.started = true; 
         this.state.score = 0;
         this.state.level = 1;
         this.state.rows = 0;
