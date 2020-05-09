@@ -57,6 +57,7 @@ class SeedScene extends Scene {
 
     startGame() {
         this.state.started = true; 
+        this.state.gameOver = false; 
         this.state.score = 0;
         this.state.level = 1;
         this.state.rows = 0;

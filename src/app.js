@@ -53,13 +53,12 @@ controlsR.update();
 renderer.setScissorTest(true);
 sceneL.state.gui.hide(); 
 
-// Render loop
-const onAnimationFrameHandler = (timeStamp) => {
-    // right
+const multiplayer = () => {
     if (sceneR.state.AddPlayer) {
         windowResizeHandler(); 
+        sceneL.state.Shape = sceneR.state.Shape; 
+        sceneL.state.Colors = sceneR.state.Colors;
     }
-
     if (sceneR.state.gameOver) {
         sceneL.endGame("YOU WIN"); 
     }
@@ -71,7 +70,12 @@ const onAnimationFrameHandler = (timeStamp) => {
         sceneL.startGame();  
         sceneR.state.started = false;
     }
+}
 
+// Render loop
+const onAnimationFrameHandler = (timeStamp) => {
+    multiplayer();
+    // right
     var left = 0; 
     var width = window.innerWidth; 
     if (sceneR.state.AddPlayer) {
