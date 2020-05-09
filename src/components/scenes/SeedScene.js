@@ -251,7 +251,7 @@ class SeedScene extends Scene {
                     }
                     
                     if (cube.children[powerupIndex]) {
-                        cube.children[powerupIndex].execute(j, "col");
+                        cube.children[powerupIndex].execute(i, "col");
                         const powerupMesh = cube.children[powerupIndex].children[0];
                         const flashPowerup = new TWEEN.Tween(powerupMesh.material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
                         const flashPowerupColor = new TWEEN.Tween(powerupMesh.material.color).to({r: 1.0}, 700).easing(TWEEN.Easing.Linear.None);
