@@ -55,11 +55,9 @@ sceneL.state.gui.hide();
 
 // changes made to scene if there are 2 players
 const multiplayer = () => {
-    if (sceneR.state.AddPlayer) {
-        windowResizeHandler(); 
-        sceneL.state.Shape = sceneR.state.Shape; 
-        sceneL.state.Colors = sceneR.state.Colors;
-    }
+    windowResizeHandler(); 
+    sceneL.state.Shape = sceneR.state.Shape; 
+    sceneL.state.Colors = sceneR.state.Colors;
     // check for winner
     if (sceneR.state.gameOver) {
         sceneL.endGame("YOU WIN"); 
@@ -99,7 +97,6 @@ const onAnimationFrameHandler = (timeStamp) => {
         controlsL.update()
         renderer.render(sceneL, cameraL)
         sceneL.update && sceneL.update(timeStamp);
-
     }
     window.requestAnimationFrame(onAnimationFrameHandler);
 };
