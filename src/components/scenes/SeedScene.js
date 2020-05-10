@@ -383,9 +383,6 @@ class SeedScene extends Scene {
             rowsCleared = rowsBelowCleared[9.5];
         }
 
-        // go through powerups now and execute them
-
-
         return [rowsCleared, rowsBelowCleared, flashTweens, cubes];
     }
 
