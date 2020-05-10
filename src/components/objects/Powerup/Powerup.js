@@ -16,16 +16,12 @@ class Powerup extends Group {
             r: -1,
         };
 
-        //debugger;
-
         this.name = 'powerup';
-
         this.state.r = Math.floor(Math.random()*4);
-
         this.position.z = -0.501;
 
         const geometry = new CircleBufferGeometry(0.5, 32);
-        let texture ;
+        let texture;
         
         switch (this.state.type) {
             case 0: // flash
@@ -48,26 +44,112 @@ class Powerup extends Group {
     }
 
     execute(val, orient) {
-        let scene = this.parent.parent.parent;
+        const scene = this.parent.parent.parent;
         switch (this.state.type) {
             case 0: // flash
                 scene.state.speed += 0.01;
                 alert("speed up!");
-                break;
+                return undefined;
             case 1: // snail
                 scene.state.speed -= 0.01;
                 alert("slow down!");
-                break;
+                return undefined;
             case 2: // bomb
-                if (orient == "col") {
+                if (orient == 'col') {
+                    const flashTweens = [];
+                    const cubes = [];
+                    const rowsBelowCleared = [];
+
+                    for (let j = -4.5; j < 5; j += 1) {
+                        flashTweens[j] = [];
+                        cubes[j] = [];
+                    }
+                    
                     for (let i = -9.5; i < 10; i += 1) {
-                        if (scene.state.board[val][i] != undefined) {
-                            const cube = scene.state.board[col][i];
+                        rowsBelowCleared[i] = 0;
+                    }
+
+                    for (let i = -9.5; i < 10; i += 1) {
+                        const cube = scene.state.board[val][i];
+                        if (cube != undefined) {
                             scene.state.board[val][i] = undefined;
+                            flashTweens[val][i] = scene.createFlashTween(cube);
+                            cubes[val][i] = cube;
+
+                            let powerupIndex = 0;
+                            if (cube.parent.state.geo != 'Sphere') {
+                                powerupIndex = 1;
+                            }
+
+                            if (cube.children[powerupIndex]) {
+                                const ret = cube.children[powerupIndex].execute(i, 'row');
+                                if (ret != undefined) {
+                                    // copy over tweens
+                                    const [powerupTweens, powerupCubes, powerupRowsBelowCleared] = ret;
+                                    for (let i = -9.5; i < 10; i += 1) {
+                                        rowsBelowCleared[i] += powerupRowsBelowCleared[i];
+                                        for (let j = -4.5; j < 5; j += 1) {
+                                            if (powerupTweens[j] && powerupTweens[j][i]) {
+                                                flashTweens[j][i] = powerupTweens[j][i];
+                                                cubes[j][i] = powerupCubes[j][i];
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
+                    return [flashTweens, cubes, rowsBelowCleared];
+                } else {
+                    const flashTweens = [];
+                    const cubes = [];
+                    const rowsBelowCleared = [];
+
+                    for (let j = -4.5; j < 5; j += 1) {
+                        flashTweens[j] = [];
+                        cubes[j] = [];
+                    }
+
+                    for (let i = -9.5; i < 10; i += 1) {
+                        if (i > val) {
+                            rowsBelowCleared[i] = 1;
+                        } else {
+                            rowsBelowCleared[i] = 0;
+                        }
+                    }
+
+                    for (let j = -4.5; j < 5; j += 1) {
+                        const cube = scene.state.board[j][val];
+                        if (cube != undefined) {
+                            scene.state.board[j][val] = undefined;
+                            flashTweens[j][val] = scene.createFlashTween(cube);
+                            cubes[j][val] = cube;
+
+                            let powerupIndex = 0;
+                            if (cube.parent.state.geo != 'Sphere') {
+                                powerupIndex = 1;
+                            }
+
+                            if (cube.children[powerupIndex]) {
+                                const ret = cube.children[powerupIndex].execute(j, 'col');
+                                if (ret != undefined) {
+                                    // copy over tweens
+                                    const [powerupTweens, powerupCubes, powerupRowsBelowCleared] = ret;
+                                    for (let i = -9.5; i < 10; i += 1) {
+                                        rowsBelowCleared[i] += powerupRowsBelowCleared[i];
+                                        for (let j = -4.5; j < 5; j += 1) {
+                                            if (powerupTweens[j] && powerupTweens[j][i]) {
+                                                flashTweens[j][i] = powerupTweens[j][i];
+                                                cubes[j][i] = powerupCubes[j][i];
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return [flashTweens, cubes, rowsBelowCleared]; 
                 }
-                break;
         }
     }
 }

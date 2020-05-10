@@ -218,95 +218,198 @@ class SeedScene extends Scene {
         this.state.curBlock = undefined;
         this.state.switched = false;
 
-        let rowsCleared = 0;
-        let madeTween = false;
-        for (let i = -9.5; i < 10; i += 1) {
-            let count = 0;
-            for (let j = 4.5; j > -5; j -= 1) {
-                if (this.state.board[j][i] != undefined) {
-                    count += 1;
-                }
-            }
 
-            if (count == 10) {
-                rowsCleared += 1;
-                // remove row
-                const cubes = [];
-                const flashTweens = [];
-                const fallTweenCols = [];
-                for (let j = -4.5; j < 5; j += 1) {
-                    const cube = this.state.board[j][i];
-                    this.state.board[j][i] = undefined;
-                    // create a color change tween and remember its corresponding cube
-                    const flash = new TWEEN.Tween(cube.material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
-                    const flashColor = new TWEEN.Tween(cube.material.color).to({r: 1.0, g: 1.0, b: 1.0}, 500).easing(TWEEN.Easing.Linear.None);
-                    cubes[j] = cube;
-                    flashTweens[j] = [flash, flashColor];
-                    fallTweenCols[j] = [];
-                    let powerupIndex = 0;
-                    if (cube.parent.state.geo != 'Sphere') {
-                        powerupIndex = 1;
-                        const flashEdge = new TWEEN.Tween(cube.children[0].material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
-                        flashTweens[j].push(flashEdge);
-                    }
-                    
-                    if (cube.children[powerupIndex]) {
-                        cube.children[powerupIndex].execute(j, "col");
-                        const powerupMesh = cube.children[powerupIndex].children[0];
-                        const flashPowerup = new TWEEN.Tween(powerupMesh.material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
-                        const flashPowerupColor = new TWEEN.Tween(powerupMesh.material.color).to({r: 1.0}, 700).easing(TWEEN.Easing.Linear.None);
-                        flashTweens[j].push(flashPowerup, flashPowerupColor)
-                    }
-                }
+        // remove blocks if necessary
+        const [rowsCleared, rowsBelowCleared, flashTweens, cubes] = this.clearBlocks();
 
-                // shift rows down
-                // go through all rows including and above i
-                for (let k = i; k < 10; k += 1) {
-                    for (let j = -4.5; j < 5; j += 1) {
-                        const blockAbove = this.state.board[j][k + 1];
-                        this.state.board[j][k] = blockAbove;
-                        if (blockAbove != undefined) {
-                            const fall = new TWEEN.Tween(blockAbove.position).to({y: blockAbove.position.y - rowsCleared}, 300).easing(TWEEN.Easing.Quadratic.In);
-                            if (!madeTween) {
-                                fall.onComplete(this.addBlock.bind(this));
-                                madeTween = true;
-                            }
-
-                            fallTweenCols[j].push(fall);
-                        }
-                    }
-                }
-                i -= 1;
-
-                // do color change then remove block then have blocks above it fall
-                for (let j = -4.5; j < 5; j += 1) {
-                    flashTweens[j][0].onComplete(() => {
-                        cubes[j].parent.remove(cubes[j]);
-                        for (let fallTween of fallTweenCols[j]) {
-                            fallTween.start();
-                        }
-                    });
-
-                    for (let flashTween of flashTweens[j]) {
-                        flashTween.start();
-                    }
-                }
-            }
-        }
-
-        // calculate score
+        // if any blocks removed, shift remaining blocks down
         if (rowsCleared > 0) {
+            const fallTweens = this.shiftBlocks(rowsBelowCleared)
+
+            // deal with tweens
+            for (let j = -4.5; j < 5; j += 1) {
+                // for every column only start the falling once
+                let addedFall = false;
+                for (let i = -9.5; i < 10; i += 1) {
+                    const flashTween = flashTweens[j][i];
+                    if (flashTween) { // there is a block disappearing there
+                        if (!addedFall) {
+                            flashTween[0].onComplete(() => {
+                                cubes[j][i].parent.remove(cubes[j][i]);
+                                for (let fallTween of fallTweens[j]) {
+                                    fallTween.start();
+                                }
+                            });
+                            addedFall = true;
+                        } else {
+                            flashTween[0].onComplete(() => {
+                                cubes[j][i].parent.remove(cubes[j][i]);
+                            });
+                        }
+                        
+                        for (const tween of flashTween) {
+                            tween.start();
+                        }
+                    }
+                }
+            }
+
+            // update score
             this.state.rows += rowsCleared;
             this.state.score += this.rowPoints[rowsCleared-1]*this.state.level;
             if (parseInt(this.state.rows/10) > this.state.level - 1) {
                 this.state.level += 1;
                 this.state.speed += 0.01;
             }
-            if (this.state.score > this.state.highScore) this.state.highScore = this.state.score;
+            if (this.state.score > this.state.highScore) {
+                this.state.highScore = this.state.score;
+            }
             this.updateScoreKeeper();
+
         } else {
             this.addBlock();
         }
+    }
+
+    clearBlocks() {
+        let rowsCleared = 0;
+        let rowsBelowCleared = [];
+        let flashTweens = [];
+        let cubes = [];
+        let powerups = [];
+
+        // initialize number of rows cleared below each row
+        for (let i = -9.5; i < 10; i += 1) {
+            rowsBelowCleared[i] = 0;
+        }
+
+        for (let i = -4.5; i < 5; i += 1) {
+            flashTweens[i] = [];
+            cubes[i] = [];
+            powerups[i] = [];
+        }
+
+        // for each row clear it if needed
+        for (let i = -9.5; i < 10; i += 1) {
+            let count = 0;
+            for (let j = -4.5; j < 5; j += 1) {
+                if (this.state.board[j][i] != undefined) {
+                    count++;
+                }
+            }
+
+            if (count == 10) { // row is cleared
+                rowsCleared++;
+
+                // clear row 
+                for (let j = -4.5; j < 5; j += 1) {
+                    const cube = this.state.board[j][i];
+                    this.state.board[j][i] = undefined;
+                    cubes[j][i] = cube;
+                    flashTweens[j][i] = this.createFlashTween(cube);
+
+                    // check for powerups and remember them
+                    let powerupIndex = 0;
+                    if (cube.parent.state.geo != 'Sphere') {
+                        powerupIndex = 1;
+                    }
+
+                    if (cube.children[powerupIndex]) {
+                        powerups[j][i] = cube.children[powerupIndex];
+                        // const ret = cube.children[powerupIndex].execute(j, 'col');
+                    }
+
+                }
+
+                // add to number of rows cleared for every row above this row
+                for (let k = i + 1; k < 10; k +=1) {
+                    rowsBelowCleared[k]++;
+                }
+            }
+        }
+
+        // check powerups if a row has been cleared
+        if (rowsCleared > 0) {
+            for (let i = -9.5; i < 10; i += 1) {
+                for (let j = -4.5; j < 5; j += 1) {
+                    if (powerups[j][i]) {
+                        const ret = powerups[j][i].execute(j, 'col');
+                        if (ret !== undefined) {
+                            // copy over tweens
+                            const [powerupTweens, powerupCubes, powerupRowsBelowCleared] = ret;
+                            for (let i = -9.5; i < 10; i += 1) {
+                                rowsBelowCleared[i] += powerupRowsBelowCleared[i];
+                                for (let j = -4.5; j < 5; j += 1) {
+                                    if (powerupTweens[j] && powerupTweens[j][i]) {
+                                        flashTweens[j][i] = powerupTweens[j][i];
+                                        cubes[j][i] = powerupCubes[j][i];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            rowsCleared = rowsBelowCleared[9.5];
+        }
+
+        // go through powerups now and execute them
+
+
+        return [rowsCleared, rowsBelowCleared, flashTweens, cubes];
+    }
+
+    shiftBlocks(rowsBelowCleared) {
+        // shift all remaining blocks down if necessary
+        let madeTween = false;
+        const fallTweens = [];
+        for (let j = -4.5; j < 5; j += 1) {
+            fallTweens[j] = [];
+        }
+
+        for (let i = -9.5; i < 10; i += 1) {
+            if (rowsBelowCleared[i] > 0) { // there are blocks in this row to be shifted down
+                for (let j = -4.5; j < 5; j += 1) {
+                    const cube = this.state.board[j][i];
+                    if (cube != undefined) { // block exists in this square
+                        const fallTween = this.createFallTween(cube, rowsBelowCleared[i]);
+                        if (!madeTween) {
+                            fallTween.onComplete(this.addBlock.bind(this));
+                            madeTween = true;
+                        }
+                        fallTweens[j].push(fallTween);
+                    }
+                    this.state.board[j][i - rowsBelowCleared[i]] = cube;
+                }
+            }
+        }
+
+        return fallTweens;
+    }
+
+    createFlashTween(cube) {
+        const flash = new TWEEN.Tween(cube.material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
+        const flashColor = new TWEEN.Tween(cube.material.color).to({r: 1.0, g: 1.0, b: 1.0}, 500).easing(TWEEN.Easing.Linear.None);
+        const flashTweens = [flash, flashColor];
+        let powerupIndex = 0;
+        if (cube.parent.state.geo != 'Sphere') {
+            powerupIndex = 1;
+            const flashEdge = new TWEEN.Tween(cube.children[0].material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
+            flashTweens.push(flashEdge);
+        }
+                    
+        if (cube.children[powerupIndex]) {
+            const powerupMesh = cube.children[powerupIndex].children[0];
+            const flashPowerup = new TWEEN.Tween(powerupMesh.material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
+            const flashPowerupColor = new TWEEN.Tween(powerupMesh.material.color).to({r: 1.0}, 700).easing(TWEEN.Easing.Linear.None);
+            flashTweens.push(flashPowerup, flashPowerupColor);
+        }
+
+        return flashTweens;
+    }
+
+    createFallTween(cube, dist) {
+        return new TWEEN.Tween(cube.position).to({y: cube.position.y - dist}, 300).easing(TWEEN.Easing.Quadratic.In);
     }
 
     addToUpdateList(object) {
