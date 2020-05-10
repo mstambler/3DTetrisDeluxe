@@ -21,6 +21,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 const camera = new PerspectiveCamera();*/
 
 const sceneL = new SeedScene(), sceneR = new SeedScene();
+sceneL.state.AddPlayer = true;
 const cameraL = new PerspectiveCamera(), cameraR = new PerspectiveCamera();
 
 const renderer = new WebGLRenderer({antialias: true});
@@ -219,7 +220,7 @@ const onAnimationFrameHandler = (timeStamp) => {
     controlsR.update()
 
     if (sceneL.state.Colors == "Neon") {
-        // bloom composer
+        // bloom composeres
         const bloomComposer = new EffectComposer(renderer);
         bloomComposer.renderToScreen = false;
         bloomComposer.addPass(renderSceneR);

@@ -179,17 +179,31 @@ class SeedScene extends Scene {
         const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
         const font = new Font(fontJson);
 
+        let size = 5;
+        let color = 0x87071c;
+        let x_pos = 20;
+        let score_pos = 12;
+        if (this.state.AddPlayer) {
+            size = 3;
+            x_pos = 11;
+            score_pos = 3;
+
+            if (text == "YOU WIN") {
+                color = 0xfcca03;
+            }
+        }
+
         const geometry = new TextGeometry(text, {
             font: font,
-            size: 5,
+            size: size,
             height: 1,
             curveSegments: 10,
             bevelEnabled: false,
         });
-        const material = new MeshPhongMaterial({color: 0x87071c});
+        const material = new MeshPhongMaterial({color: color});
         const mesh = new Mesh(geometry, material);
         mesh.rotateY(Math.PI);
-        mesh.position.x = 20;
+        mesh.position.x = x_pos;
         mesh.position.z = -5;
         mesh.name = 'game_over';
 
@@ -202,7 +216,7 @@ class SeedScene extends Scene {
         });
         const materialScore = new MeshPhongMaterial({color: 0x097025});
         const meshScore = new Mesh(scoreGeo, materialScore);
-        meshScore.position.x = 12;
+        meshScore.position.x = score_pos;
         meshScore.position.y = -5;
 
         mesh.add(meshScore);
