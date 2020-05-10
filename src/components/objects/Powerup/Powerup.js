@@ -52,12 +52,10 @@ class Powerup extends Group {
         switch (this.state.type) {
             case 0: // flash
                 scene.state.speed += 0.01;
-                // alert("speed up!");
                 return undefined;
             case 1: // snail
                 if (scene.state.speed > 0.01)    
                     scene.state.speed -= 0.01;
-                // alert("slow down!");
                 return undefined;
             case 2: // bomb
                 if (orient == 'col') {
@@ -156,7 +154,6 @@ class Powerup extends Group {
                     return [flashTweens, cubes, rowsBelowCleared]; 
                 }
             case 3:
-                // need val to be the row for this
                 for (let i = -9.5; i < 10; i += 1) {
                     let shuffled = [];
                     for (let j = 4.5; j > -5; j -= 1) {

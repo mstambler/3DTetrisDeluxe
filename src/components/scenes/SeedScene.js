@@ -330,19 +330,48 @@ class SeedScene extends Scene {
         // check powerups if a row has been cleared
         if (rowsCleared > 0) {
             for (let i = -9.5; i < 10; i += 1) {
+                const bombCols = [];
+                const bombPowerups = [];
+                const otherPowerups = [];
                 for (let j = -4.5; j < 5; j += 1) {
                     if (powerups[j][i]) {
-                        const ret = powerups[j][i].execute(j, 'col');
-                        if (ret !== undefined) {
-                            // copy over tweens
-                            const [powerupTweens, powerupCubes, powerupRowsBelowCleared] = ret;
-                            for (let i = -9.5; i < 10; i += 1) {
-                                rowsBelowCleared[i] += powerupRowsBelowCleared[i];
-                                for (let j = -4.5; j < 5; j += 1) {
-                                    if (powerupTweens[j] && powerupTweens[j][i]) {
-                                        flashTweens[j][i] = powerupTweens[j][i];
-                                        cubes[j][i] = powerupCubes[j][i];
-                                    }
+                        if (powerups[j][i].state.type == 2) {
+                            bombPowerups.push(powerups[j][i]);
+                            bombCols[powerups[j][i]] = j;
+                        } else {
+                            otherPowerups.push(powerups[j][i]);
+                        }
+                    }
+                }
+
+                for (let powerup of otherPowerups) { 
+                    const ret = powerup.execute(0, 'col');
+                    if (ret !== undefined) {
+                        // copy over tweens
+                        const [powerupTweens, powerupCubes, powerupRowsBelowCleared] = ret;
+                        for (let i = -9.5; i < 10; i += 1) {
+                            rowsBelowCleared[i] += powerupRowsBelowCleared[i];
+                            for (let j = -4.5; j < 5; j += 1) {
+                                if (powerupTweens[j] && powerupTweens[j][i]) {
+                                    flashTweens[j][i] = powerupTweens[j][i];
+                                    cubes[j][i] = powerupCubes[j][i];
+                                }
+                            }
+                        }
+                    }
+                }
+
+                for (let powerup of bombPowerups) {
+                    const ret = powerup.execute(bombCols[powerup], 'col');
+                    if (ret !== undefined) {
+                        // copy over tweens
+                        const [powerupTweens, powerupCubes, powerupRowsBelowCleared] = ret;
+                        for (let i = -9.5; i < 10; i += 1) {
+                            rowsBelowCleared[i] += powerupRowsBelowCleared[i];
+                            for (let j = -4.5; j < 5; j += 1) {
+                                if (powerupTweens[j] && powerupTweens[j][i]) {
+                                    flashTweens[j][i] = powerupTweens[j][i];
+                                    cubes[j][i] = powerupCubes[j][i];
                                 }
                             }
                         }
