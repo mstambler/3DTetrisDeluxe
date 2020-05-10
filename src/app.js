@@ -212,7 +212,7 @@ const onAnimationFrameHandler = (timeStamp) => {
     if (sceneR.state.AddPlayer) {
         left = window.innerWidth/2;
         width = window.innerWidth/2;
-        // sceneL.state.gui = sceneR.state.gui;
+        sceneL.state.gui = sceneR.state.gui;
     }
     renderer.setScissor(left, 0, width, window.innerHeight);
     renderer.setViewport(left, 0, width, window.innerHeight);
