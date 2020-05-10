@@ -283,6 +283,7 @@ class Block extends Group {
     blockArrow(key) {
         switch(key) {
             case 'ArrowRight':
+            case 'd':
                 for (let offset of this.state.offsets) {
                     if (this.position.x + offset.x < -4) {
                         return;
@@ -294,6 +295,7 @@ class Block extends Group {
                 this.position.x -= 1;
                 break;
             case 'ArrowLeft':
+            case 'a': 
                 for (let offset of this.state.offsets) {
                     if (this.position.x + offset.x > 4) {
                         return;
@@ -305,6 +307,7 @@ class Block extends Group {
                 this.position.x += 1;
                 break;
             case 'ArrowDown':
+            case 's':
                 for (let offset of this.state.offsets) {
                     if (this.position.y + offset.y < -9) {
                         return;
@@ -318,6 +321,7 @@ class Block extends Group {
                 this.updateShadow(this.parent);
                 break;
             case ' ':
+            case 'x': 
                 // drop and floor
                 const dropDist = this.state.offsets[0].y - this.state.shadows[0].position.y;
                 this.state.continuousPos -= dropDist;
@@ -325,6 +329,7 @@ class Block extends Group {
                 this.floor();
                 break;
             case 'ArrowUp':
+            case 'w': 
                 if (this.state.shape > 1) {
                     const newOffsets = [];
                     for (let i = 0; i < this.state.offsets.length; i++) {
