@@ -2,6 +2,7 @@ import { Group, MeshBasicMaterial, CircleBufferGeometry, Mesh, DoubleSide, Textu
 import TEXTURE_FLASH from './flash.jpg';
 import TEXTURE_SNAIL from './snail.png';
 import TEXTURE_BOMB from './bomb.png';
+import TEXTURE_SHUFF from './shuffle.jpg';
 
 
 class Powerup extends Group {
@@ -12,7 +13,7 @@ class Powerup extends Group {
         // Init state
         this.state = {
             gui: parent.state.gui,
-            type: Math.floor(Math.random()*3),
+            type: Math.floor(Math.random()*4),
             r: -1,
         };
 
@@ -33,6 +34,9 @@ class Powerup extends Group {
             case 2: // bomb
                 texture = new TextureLoader().load(TEXTURE_BOMB);
                 break;
+            case 3: // shuffle
+                texture = new TextureLoader().load(TEXTURE_SHUFF);
+                break;
         }
         const material = new MeshBasicMaterial({map: texture, side: DoubleSide, transparent: true});
         const circle = new Mesh(geometry, material);
@@ -48,11 +52,12 @@ class Powerup extends Group {
         switch (this.state.type) {
             case 0: // flash
                 scene.state.speed += 0.01;
-                alert("speed up!");
+                // alert("speed up!");
                 return undefined;
             case 1: // snail
-                scene.state.speed -= 0.01;
-                alert("slow down!");
+                if (scene.state.speed > 0.01)    
+                    scene.state.speed -= 0.01;
+                // alert("slow down!");
                 return undefined;
             case 2: // bomb
                 if (orient == 'col') {
@@ -150,8 +155,44 @@ class Powerup extends Group {
                     }
                     return [flashTweens, cubes, rowsBelowCleared]; 
                 }
+            case 3:
+                // need val to be the row for this
+                for (let i = -9.5; i < 10; i += 1) {
+                    let shuffled = [];
+                    for (let j = 4.5; j > -5; j -= 1) {
+                        shuffled[j] = scene.state.board[j][i];
+                    }
+                    shuffled = this.shuffle(shuffled);
+                    for (let k = 4.5; k > -5; k -= 1) {
+                        const cube = shuffled[k];
+                        scene.state.board[k][i] = cube;
+                        if (cube != undefined) {
+                            const cur_x = cube.parent.position.x + cube.position.x;
+                            cube.translateX(k - cur_x);
+                        }
+                    }
+                }
+                return undefined;
         }
     }
+
+    shuffle(array) {
+        var m = 10, t, i;
+      
+        // While there remain elements to shuffle…
+        while (m) {
+      
+          // Pick a remaining element…
+          i = Math.floor(Math.random() * m--);
+      
+          // And swap it with the current element.
+          t = array[m - 4.5];
+          array[m - 4.5] = array[i - 4.5];
+          array[i - 4.5] = t;
+        }
+      
+        return array;
+      }
 }
 
 export default Powerup;

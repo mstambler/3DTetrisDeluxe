@@ -316,7 +316,6 @@ class SeedScene extends Scene {
 
                     if (cube.children[powerupIndex]) {
                         powerups[j][i] = cube.children[powerupIndex];
-                        // const ret = cube.children[powerupIndex].execute(j, 'col');
                     }
 
                 }
