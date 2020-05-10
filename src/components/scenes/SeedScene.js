@@ -15,6 +15,7 @@ class SeedScene extends Scene {
             Start: this.startGame.bind(this), // gui buttons
             Shape: 'Cube',
             Colors: 'Standard',
+            Powerups: false,
             updateList: [],
             curBlock: undefined,
             nextBlock: undefined,
@@ -48,6 +49,7 @@ class SeedScene extends Scene {
         this.state.gui.add(this.state, 'Start');
         this.state.gui.add(this.state, 'Shape', [ 'Cube', 'Sphere' ]);
         this.state.gui.add(this.state, 'Colors', [ 'Standard', 'Brick', 'Marble', 'Neon' ]);
+        this.state.gui.add(this.state, 'Powerups');
     }
 
     // start a new game

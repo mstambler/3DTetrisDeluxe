@@ -30,10 +30,14 @@ class Block extends Group {
         this.name = 'block';
         this.makeBlock(this.state.shape, parent);
         
-        // will change to smaller percentage once this works
-        if (Math.random() < 0.5) {
-            this.state.powerup = new Powerup(this);
-            this.state.cubes[this.state.powerup.state.r].add(this.state.powerup);
+        if (parent.state.Powerups && parent.state.level > 1) {
+            const percent = [20, 10, 5, 4];
+            const num = Math.min(parent.state.level, 5) - 2;
+            const chance = Math.floor(Math.random()*percent[num]);
+            if (chance == 0) {
+                this.state.powerup = new Powerup(this);
+                this.state.cubes[this.state.powerup.state.r].add(this.state.powerup);
+            }
         }
     }
 
