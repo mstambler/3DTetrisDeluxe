@@ -1,42 +1,41 @@
 import * as Dat from 'dat.gui';
-import { Scene, Color, TextGeometry, MeshPhongMaterial, Mesh, Font, Fog} from 'three';
+import { Scene, Color, TextGeometry, MeshPhongMaterial, Mesh, Font } from 'three';
 import { Block, Floor, Grid } from 'objects';
 import { BasicLights } from 'lights';
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
 
 class SeedScene extends Scene {
-    constructor() {
+    constructor(gui, addGui) {
         // Call parent Scene() constructor
         super();
 
         // Init state
         this.state = {
-            gui: new Dat.GUI(), // Create GUI for scene
-            Start: this.startGame.bind(this), // gui buttons
-            started: false,
-            gameover: false,
+            // gui related state
+            gui: gui,
+            Start: this.startGame.bind(this),
+            Multiplayer: false,
+            Powerups: false,
             Shape: 'Cube',
             Colors: 'Standard',
-            Powerups: false,
-            AddPlayer: false,
+            // multiplayer related state
+            started: false,
+            gameOver: false,
+            // block related state
             updateList: [],
             curBlock: undefined,
             nextBlock: undefined,
             holdBlock: undefined,
             switched: false, // did curBlock just get switched out from hold?
-            width: 10,
-            height: 20,
             board: [],
+            // progress/score related state
             score: 0,
             highScore: 0,
             level: 1,
             rows: 0,
             speed: 0.02,
+            rowPoints: [40, 100, 300, 1200],
         };
-
-        // Set background to a nice color
-        // this.background = 0x7ec0ee;
-        this.rowPoints = [40, 100, 300, 1200];
 
         // Add meshes to scene
         const floor = new Floor(this);
@@ -48,12 +47,14 @@ class SeedScene extends Scene {
         this.updateScoreKeeper();
         this.makeText();
 
-        // Populate GUI
-        this.state.gui.add(this.state, 'Start');
-        this.state.gui.add(this.state, 'AddPlayer');
-        this.state.gui.add(this.state, 'Shape', [ 'Cube', 'Sphere' ]);
-        this.state.gui.add(this.state, 'Colors', [ 'Standard', 'Brick', 'Marble', 'Neon' ]);
-        this.state.gui.add(this.state, 'Powerups');
+        // Populate GUI if told to by app
+        if (addGui) {
+            this.state.gui.add(this.state, 'Start');
+            this.state.gui.add(this.state, 'Multiplayer');
+            this.state.gui.add(this.state, 'Powerups');
+            this.state.gui.add(this.state, 'Shape', ['Cube', 'Sphere']);
+            this.state.gui.add(this.state, 'Colors', ['Standard', 'Brick', 'Marble', 'Neon']);
+        }
     }
 
     // start a new game
@@ -144,7 +145,7 @@ class SeedScene extends Scene {
     }
 
     holdBlock() {
-        if (this.state.switched) return; // don't allow switiching a block out then in
+        if (this.state.switched) return; // don't allow switching a block out then in
 
         this.state.switched = true;
         this.removeFromUpdateList();
@@ -176,6 +177,11 @@ class SeedScene extends Scene {
     }
 
     endGame(text) {
+        this.state.curBlock = undefined;
+        this.state.nextBlock = undefined;
+        this.state.holdBlock = undefined;
+        this.removeFromUpdateList();
+
         const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
         const font = new Font(fontJson);
 
@@ -183,7 +189,7 @@ class SeedScene extends Scene {
         let color = 0x87071c;
         let x_pos = 20;
         let score_pos = 12;
-        if (this.state.AddPlayer) {
+        if (this.state.Multiplayer) {
             size = 3;
             x_pos = 11;
             score_pos = 3;
@@ -232,38 +238,6 @@ class SeedScene extends Scene {
             this.state.holdBlock = undefined;
 
             this.endGame("GAME OVER");
-            /*const fontJson = require('three/examples/fonts/optimer_bold.typeface.json');
-            const font = new Font(fontJson);
-
-            const geometry = new TextGeometry('GAME OVER', {
-                font: font,
-                size: 5,
-                height: 1,
-                curveSegments: 10,
-                bevelEnabled: false,
-            });
-            const material = new MeshPhongMaterial({color: 0x87071c});
-            const mesh = new Mesh(geometry, material);
-            mesh.rotateY(Math.PI);
-            mesh.position.x = 20;
-            mesh.position.z = -5;
-            mesh.name = 'game_over';
-
-            const scoreGeo = new TextGeometry(String('Score: ' + this.state.score), {
-                font: font,
-                size: 3,
-                height: 1,
-                curveSegments: 10,
-                bevelEnabled: false,
-            });
-            const materialScore = new MeshPhongMaterial({color: 0x097025});
-            const meshScore = new Mesh(scoreGeo, materialScore);
-            meshScore.position.x = 12;
-            meshScore.position.y = -5;
-
-            mesh.add(meshScore);
-            this.add(mesh);
-            */
             return;
         }
 
@@ -315,7 +289,7 @@ class SeedScene extends Scene {
 
             // update score
             this.state.rows += rowsCleared;
-            this.state.score += this.rowPoints[rowsCleared-1]*this.state.level;
+            this.state.score += this.state.rowPoints[rowsCleared-1]*this.state.level;
             if (parseInt(this.state.rows/10) > this.state.level - 1) {
                 this.state.level += 1;
                 this.state.speed += 0.01;
@@ -523,7 +497,7 @@ class SeedScene extends Scene {
     }
 
     arrow(key) {
-        if (key == 'Shift' || key == 'z') this.state.nextBlock && this.holdBlock();
+        if (key == 'Shift' || key == 'z') this.state.curBlock && this.holdBlock();
         else if (this.state.curBlock != undefined) this.state.curBlock.blockArrow(key);
     }
 

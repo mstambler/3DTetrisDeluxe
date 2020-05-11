@@ -6,6 +6,8 @@
  * handles window resizes.
  *
  */
+
+import * as Dat from 'dat.gui';
 import { WebGLRenderer, PerspectiveCamera, Vector2, MeshBasicMaterial  } from 'three';
 import { ShaderMaterial, Layers, ReinhardToneMapping, NoToneMapping } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -16,20 +18,16 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 
+
+let multiplayer = false;
+const gui = new Dat.GUI(); // shared gui
+
 // Initialize core ThreeJS components
-/*const scene = new SeedScene();
-const camera = new PerspectiveCamera();*/
-
-const sceneL = new SeedScene(), sceneR = new SeedScene();
-sceneL.state.AddPlayer = true;
+const sceneL = new SeedScene(gui, false), sceneR = new SeedScene(gui, true);
 const cameraL = new PerspectiveCamera(), cameraR = new PerspectiveCamera();
-
 const renderer = new WebGLRenderer({antialias: true});
 
 // Set up camera
-/*camera.position.set(0, 0, -30);
-camera.lookAt(0, 0, 0);*/
-
 cameraL.position.set(0, 0, -30);
 cameraL.lookAt(0, 0, 0);
 
@@ -47,16 +45,6 @@ document.body.style.overflow = 'hidden'; // Fix scrolling
 document.body.appendChild(canvas);
 
 // Set up controls
-/*const controls = new OrbitControls(camera, canvas);
-controls.enableDamping = true;
-controls.enablePan = false;
-controls.enableZoom = true;
-controls.minDistance = 10;
-controls.maxDistance = 50;
-controls.minPolarAngle = 0;
-controls.maxPolarAngle = Math.PI/2 + 0.05;
-controls.update();*/
-
 const controlsL = new OrbitControls(cameraL, canvas);
 controlsL.enableDamping = true;
 controlsL.enablePan = false;
@@ -78,7 +66,6 @@ controlsR.maxPolarAngle = Math.PI/2 + 0.05;
 controlsR.update();
 
 renderer.setScissorTest(true);
-sceneL.state.gui.hide(); 
 
 // bloom stuff
 const bloomLayer = new Layers();
@@ -96,60 +83,69 @@ const params = {
 const renderSceneL = new RenderPass(sceneL, cameraL);
 const renderSceneR = new RenderPass(sceneR, cameraR);
 
-
 // bloom pass
 const bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
 bloomPass.threshold = params.bloomThreshold;
 bloomPass.strength = params.bloomStrength;
 bloomPass.radius = params.bloomRadius;
 
-// final pass
-/*const finalPass = new ShaderPass(
-    new ShaderMaterial({
-        uniforms: {
-            baseTexture: {value: null},
-            bloomTexture: {value: bloomComposer.renderTarget2.texture}
-        },
-        vertexShader: [
-            "varying vec2 vUv;",
-			"void main() {",
-				"vUv = uv;",
-				"gl_Position = projectionMatrix*modelViewMatrix*vec4(position, 1.0);",
-			"}"
-        ].join( "\n" ),
-       fragmentShader: [
-        "uniform sampler2D baseTexture;",
-        "uniform sampler2D bloomTexture;",
-        "varying vec2 vUv;",
-        "vec4 getTexture(sampler2D texelToLinearTexture) {",
-            "return mapTexelToLinear(texture2D(texelToLinearTexture, vUv));",
-        "}",
-        "void main() {",
-            "gl_FragColor = (getTexture(baseTexture) + vec4(1.0) * getTexture(bloomTexture));",
-        "}"
-       ].join( "\n" ),
-        defines: {}
-    }), "baseTexture"
-);
-finalPass.needsSwap = true;*/
+// bloom composers
+const bloomComposerL = new EffectComposer(renderer);
+bloomComposerL.renderToScreen = false;
+bloomComposerL.addPass(renderSceneL);
+bloomComposerL.addPass(bloomPass);
 
-/*
-// bloom composer
-const bloomComposer = new EffectComposer(renderer);
-bloomComposer.renderToScreen = false;
-bloomComposer.addPass(renderScene);
-bloomComposer.addPass(bloomPass);
+const bloomComposerR = new EffectComposer(renderer);
+bloomComposerR.renderToScreen = false;
+bloomComposerR.addPass(renderSceneR);
+bloomComposerR.addPass(bloomPass);
+
+// final pass
+const makeFinalPass = (bloomComposer) => {
+    const finalPass = new ShaderPass(
+        new ShaderMaterial({
+            uniforms: {
+                baseTexture: {value: null},
+                bloomTexture: {value: bloomComposer.renderTarget2.texture}
+            },
+            vertexShader: [
+                "varying vec2 vUv;",
+                "void main() {",
+                    "vUv = uv;",
+                    "gl_Position = projectionMatrix*modelViewMatrix*vec4(position, 1.0);",
+                "}"
+            ].join( "\n" ),
+           fragmentShader: [
+            "uniform sampler2D baseTexture;",
+            "uniform sampler2D bloomTexture;",
+            "varying vec2 vUv;",
+            "vec4 getTexture(sampler2D texelToLinearTexture) {",
+                "return mapTexelToLinear(texture2D(texelToLinearTexture, vUv));",
+            "}",
+            "void main() {",
+                "gl_FragColor = (getTexture(baseTexture) + vec4(1.0) * getTexture(bloomTexture));",
+            "}"
+           ].join( "\n" ),
+            defines: {}
+        }), "baseTexture"
+    );
+    finalPass.needsSwap = true;
+    return finalPass;
+}
 
 // final composer
-const finalComposer = new EffectComposer(renderer);
-finalComposer.addPass(renderScene);
-finalComposer.addPass(finalPass);
-*/
+const finalComposerL = new EffectComposer(renderer);
+const finalComposerR = new EffectComposer(renderer);
+finalComposerL.addPass(renderSceneL);
+finalComposerR.addPass(renderSceneR);
+finalComposerL.addPass(makeFinalPass(bloomComposerL));
+finalComposerR.addPass(makeFinalPass(bloomComposerR));
+
 // set all Block objects to bloom layer
 const findBlocks = (obj) => {
     if (obj instanceof Block || obj instanceof Powerup) {
         obj.layers.enable(1);
-        for (let child of obj.children) {
+        for (const child of obj.children) {
             child.layers.enable(1);
         }
     }
@@ -171,209 +167,112 @@ const restoreMaterial = (obj) => {
     }
 }
 
-// changes made to scene if there are 2 players
-const multiplayer = () => {
-    windowResizeHandler(); 
-    sceneL.state.Shape = sceneR.state.Shape; 
-    sceneL.state.Colors = sceneR.state.Colors;
-    // check for winner
-    if (sceneR.state.gameOver) {
-        sceneL.endGame("YOU WIN"); 
-    }
-    if (sceneL.state.gameOver) {
-        sceneR.endGame("YOU WIN"); 
-    }
-    // start games together
-    if (sceneR.state.started) {
-        sceneL.startGame();  
-        sceneR.state.started = false;
-    }
-}
-
-// Render loop
-const onAnimationFrameHandler = (timeStamp) => {
-    //controls.update();
-    /*if (scene.state.Colors == "Neon") {
+const renderScene = (neon, scene, camera, bloomComposer, finalComposer) => {
+    if (neon) {
         renderer.toneMapping = ReinhardToneMapping;
         scene.traverse(findBlocks);
         scene.traverse(darkenNonBloomed);
         bloomComposer.render();
         scene.traverse(restoreMaterial);
         finalComposer.render();
-    }
-    else {
+    } else {
         renderer.toneMapping = NoToneMapping;
         renderer.render(scene, camera);
     }
-    scene.update && scene.update(timeStamp);*/
-    multiplayer();
-    // right
-    var left = 0; 
-    var width = window.innerWidth; 
-    if (sceneR.state.AddPlayer) {
+}
+
+// changes made to scene if there are 2 players
+const handleMultiplayer = () => {
+    // check for winner
+    if (sceneR.state.gameOver) {
+        sceneL.endGame("YOU WIN"); 
+    } else if (sceneL.state.gameOver) {
+        sceneR.endGame("YOU WIN"); 
+    }
+
+    // start games together
+    if (sceneR.state.started) {
+        sceneL.startGame();
+        sceneR.state.started = false;
+    }
+}
+
+// Render loop
+const onAnimationFrameHandler = (timeStamp) => {
+    // check if multiplayer setting has changed and resize window
+    if (multiplayer != sceneR.state.Multiplayer) {
+        multiplayer = sceneR.state.Multiplayer;
+        windowResizeHandler();
+    }
+
+    // always render right scene
+    let left = 0; 
+    let width = window.innerWidth; 
+    if (multiplayer) {
         left = window.innerWidth/2;
         width = window.innerWidth/2;
-        sceneL.state.gui = sceneR.state.gui;
     }
     renderer.setScissor(left, 0, width, window.innerHeight);
     renderer.setViewport(left, 0, width, window.innerHeight);
-    controlsR.update()
 
-    if (sceneL.state.Colors == "Neon") {
-        // bloom composeres
-        const bloomComposer = new EffectComposer(renderer);
-        bloomComposer.renderToScreen = false;
-        bloomComposer.addPass(renderSceneR);
-        bloomComposer.addPass(bloomPass);
-
-        // final pass
-        const finalPass = new ShaderPass(
-            new ShaderMaterial({
-                uniforms: {
-                    baseTexture: {value: null},
-                    bloomTexture: {value: bloomComposer.renderTarget2.texture}
-                },
-                vertexShader: [
-                    "varying vec2 vUv;",
-                    "void main() {",
-                        "vUv = uv;",
-                        "gl_Position = projectionMatrix*modelViewMatrix*vec4(position, 1.0);",
-                    "}"
-                ].join( "\n" ),
-            fragmentShader: [
-                "uniform sampler2D baseTexture;",
-                "uniform sampler2D bloomTexture;",
-                "varying vec2 vUv;",
-                "vec4 getTexture(sampler2D texelToLinearTexture) {",
-                    "return mapTexelToLinear(texture2D(texelToLinearTexture, vUv));",
-                "}",
-                "void main() {",
-                    "gl_FragColor = (getTexture(baseTexture) + vec4(1.0) * getTexture(bloomTexture));",
-                "}"
-            ].join( "\n" ),
-                defines: {}
-            }), "baseTexture"
-        );
-        finalPass.needsSwap = true;
-
-        // final composer
-        const finalComposer = new EffectComposer(renderer);
-        finalComposer.addPass(renderSceneR);
-        finalComposer.addPass(finalPass);
-
-        renderer.toneMapping = ReinhardToneMapping;
-        sceneR.traverse(findBlocks);
-        sceneR.traverse(darkenNonBloomed);
-        bloomComposer.render();
-        sceneR.traverse(restoreMaterial);
-        finalComposer.render();
-    }
-    else {
-        renderer.toneMapping = NoToneMapping;
-        renderer.render(sceneR, cameraR)
-    }
-
+    controlsR.update();
+    renderScene(sceneR.state.Colors == "Neon", sceneR, cameraR, bloomComposerR, finalComposerR);
     sceneR.update && sceneR.update(timeStamp);
 
-    if (sceneR.state.AddPlayer) {
-        // left
+    // render left if multiplayer
+    if (multiplayer) {
         renderer.setScissor(0, 0, window.innerWidth/2, window.innerHeight);
         renderer.setViewport(0, 0, window.innerWidth/2, window.innerHeight);
-        controlsL.update()
-        if (sceneL.state.Colors == "Neon") {
-            // bloom composer
-            const bloomComposer = new EffectComposer(renderer);
-            bloomComposer.renderToScreen = false;
-            bloomComposer.addPass(renderSceneL);
-            bloomComposer.addPass(bloomPass);
-    
-            // final pass
-            const finalPass = new ShaderPass(
-                new ShaderMaterial({
-                    uniforms: {
-                        baseTexture: {value: null},
-                        bloomTexture: {value: bloomComposer.renderTarget2.texture}
-                    },
-                    vertexShader: [
-                        "varying vec2 vUv;",
-                        "void main() {",
-                            "vUv = uv;",
-                            "gl_Position = projectionMatrix*modelViewMatrix*vec4(position, 1.0);",
-                        "}"
-                    ].join( "\n" ),
-                fragmentShader: [
-                    "uniform sampler2D baseTexture;",
-                    "uniform sampler2D bloomTexture;",
-                    "varying vec2 vUv;",
-                    "vec4 getTexture(sampler2D texelToLinearTexture) {",
-                        "return mapTexelToLinear(texture2D(texelToLinearTexture, vUv));",
-                    "}",
-                    "void main() {",
-                        "gl_FragColor = (getTexture(baseTexture) + vec4(1.0) * getTexture(bloomTexture));",
-                    "}"
-                ].join( "\n" ),
-                    defines: {}
-                }), "baseTexture"
-            );
-            finalPass.needsSwap = true;
 
-            // final composer
-            const finalComposer = new EffectComposer(renderer);
-            finalComposer.addPass(renderSceneL);
-            finalComposer.addPass(finalPass);
+        // make sure scenes are in sync
+        sceneL.state.Powerups = sceneR.state.Powerups; 
+        sceneL.state.Shape = sceneR.state.Shape; 
+        sceneL.state.Colors = sceneR.state.Colors;
 
-            renderer.toneMapping = ReinhardToneMapping;
-            sceneL.traverse(findBlocks);
-            sceneL.traverse(darkenNonBloomed);
-            bloomComposer.render();
-            sceneL.traverse(restoreMaterial);
-            finalComposer.render();
-        }
-        else {
-            renderer.toneMapping = NoToneMapping;
-            renderer.render(sceneL, cameraL)
-        }
+        controlsL.update();
+        renderScene(sceneR.state.Colors == "Neon", sceneL, cameraL, bloomComposerL, finalComposerL);
         sceneL.update && sceneL.update(timeStamp);
+
+        // deal with multiplayer updates
+        handleMultiplayer();
     }
+
+    // continue render loop
     window.requestAnimationFrame(onAnimationFrameHandler);
 };
 window.requestAnimationFrame(onAnimationFrameHandler);
 
 // Resize Handler
-/*const windowResizeHandler = () => {
-    const { innerHeight, innerWidth } = window;
-    renderer.setSize(innerWidth, innerHeight);
-    bloomComposer.setSize(innerWidth, innerHeight);
-    finalComposer.setSize(innerWidth, innerHeight);
-    camera.aspect = innerWidth / innerHeight;
-    camera.updateProjectionMatrix();
-};*/
-// Resize Handler
 const windowResizeHandler = () => {
     const { innerHeight, innerWidth } = window;
+
+    // set sizes of composers
     renderer.setSize(innerWidth, innerHeight);
+    if (multiplayer) {
+        bloomComposerL.setSize(innerWidth/2, innerHeight/2);
+        finalComposerL.setSize(innerWidth/2, innerHeight/2);
+        bloomComposerR.setSize(innerWidth/2, innerHeight/2);
+        finalComposerR.setSize(innerWidth/2, innerHeight/2);
+    } else {
+        bloomComposerR.setSize(innerWidth, innerHeight);
+        finalComposerR.setSize(innerWidth, innerHeight);
+    }
+
+    // update cameras
     cameraL.aspect = innerWidth / (2 * innerHeight);
     cameraL.updateProjectionMatrix();
-    if (sceneR.state.AddPlayer) {
+    if (multiplayer) {
         cameraR.aspect = innerWidth / (2 * innerHeight);
         cameraR.updateProjectionMatrix();
     } else {
         cameraR.aspect = innerWidth / (innerHeight);
         cameraR.updateProjectionMatrix();
     }
-
-    
 };
 windowResizeHandler();
 window.addEventListener('resize', windowResizeHandler, false);
 
 // Key handler
-/*const windowKeyHandler = (event) => {
-    const keys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', ' ', 'Shift']
-    if (keys.includes(event.key)) {
-        scene.arrow(event.key);
-    }
-};*/
 const windowKeyHandler = (event) => {
     const keysR = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', ' ', 'Shift']
     const keysL = ['w', 'a', 's', 'd', 'x', 'z']
