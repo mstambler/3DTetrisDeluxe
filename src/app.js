@@ -225,6 +225,7 @@ const onAnimationFrameHandler = (timeStamp) => {
         renderer.setViewport(0, 0, window.innerWidth/2, window.innerHeight);
 
         // make sure scenes are in sync
+        sceneL.state.Multiplayer = sceneR.state.Multiplayer; 
         sceneL.state.Powerups = sceneR.state.Powerups; 
         sceneL.state.Shape = sceneR.state.Shape; 
         sceneL.state.Colors = sceneR.state.Colors;
