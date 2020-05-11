@@ -43,6 +43,9 @@ class Grid extends Group {
         // add to mesh
         this.add(lines);
         this.position.y = -10;
+
+        lineGeometry.dispose();
+        lineMaterial.dispose();
     }
 }
 

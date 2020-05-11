@@ -44,6 +44,10 @@ class Powerup extends Group {
         circle_back.translateZ(1.002);
         circle.add(circle_back);
         this.add(circle);
+
+        texture.dispose();
+        material.dispose();
+        geometry.dispose();
     }
 
     execute(val, orient) {

@@ -149,7 +149,7 @@ class Block extends Group {
 
         let material;
         let shadowMaterial;
-        let texture;
+        let texture = undefined;
         switch(parent.state.Colors) {
             case 'Standard':
                 material = new MeshPhongMaterial({color: color, transparent: true});
@@ -170,6 +170,8 @@ class Block extends Group {
                 shadowMaterial = new LineDashedMaterial({color: material.color, linewidth: 4});
                 break;
         }
+
+        if (texture !== undefined) texture.dispose();
 
         for (let i = 0; i < this.state.offsets.length; i++) {
             // make cube and translate
@@ -202,6 +204,8 @@ class Block extends Group {
     floor() {
         for (let shadow of this.state.shadows) {
             this.remove(shadow);
+            shadow.geometry.dispose();
+            shadow.material.dispose();
         }
         this.parent.removeFromUpdateList();
         this.parent.updateBlock();
@@ -525,6 +529,17 @@ class Block extends Group {
                 }
                 this.updateShadow(this.parent);
                 break;
+        }
+    }
+
+    dispose() {
+        for (const cube of this.state.cubes) {
+            cube.geometry.dispose();
+            cube.material.dispose();
+            for (const child of cube.children) {
+                child.geometry && child.geometry.dispose();
+                child.material && child.material.dispose();
+            }
         }
     }
 }

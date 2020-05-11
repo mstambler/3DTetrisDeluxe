@@ -88,8 +88,9 @@ class SeedScene extends Scene {
             const child = this.children[i];
             if (child instanceof Block) {
                 this.remove(child);
+                child.dispose();
             }
-            else if (child.name == 'game_over') {
+            else if (child.name == 'game_over' || child.name == 'score') {
                 this.remove(child);
             }
         }
@@ -117,6 +118,8 @@ class SeedScene extends Scene {
         nextMesh.position.y = 8;
         nextMesh.name = 'next';
         this.add(nextMesh);
+        nextGeometry.dispose();
+        nextMaterial.dispose();
 
         const holdGeometry = new TextGeometry('Hold:', {
             font: font,
@@ -131,6 +134,8 @@ class SeedScene extends Scene {
         holdMesh.position.y = 2;
         holdMesh.name = 'hold';
         this.add(holdMesh);
+        holdGeometry.dispose();
+        holdMaterial.dispose();
     }
 
     // add a new block, update next block to current block, start the block
@@ -223,9 +228,15 @@ class SeedScene extends Scene {
         const meshScore = new Mesh(scoreGeo, materialScore);
         meshScore.position.x = score_pos;
         meshScore.position.y = -5;
+        meshScore.name = 'score'
 
         mesh.add(meshScore);
         this.add(mesh);
+
+        geometry.dispose();
+        material.dispose();
+        scoreGeo.dispose();
+        materialScore.dispose();
     }
 
     // update the block once a block has stopped moving
@@ -268,6 +279,12 @@ class SeedScene extends Scene {
                         if (!addedFall) {
                             flashTween[0].onComplete(() => {
                                 cubes[j][i].parent.remove(cubes[j][i]);
+                                cubes[j][i].geometry.dispose();
+                                cubes[j][i].material.dispose();
+                                for (const child of cubes[j][i].children) {
+                                    child.geometry && child.geometry.dispose();
+                                    child.material && child.material.dispose();
+                                }
                                 for (let fallTween of fallTweens[j]) {
                                     fallTween.start();
                                 }
@@ -276,6 +293,12 @@ class SeedScene extends Scene {
                         } else {
                             flashTween[0].onComplete(() => {
                                 cubes[j][i].parent.remove(cubes[j][i]);
+                                cubes[j][i].geometry.dispose();
+                                cubes[j][i].material.dispose();
+                                for (const child of cubes[j][i].children) {
+                                    child.geometry && child.geometry.dispose();
+                                    child.material && child.material.dispose();
+                                }
                             });
                         }
                         
@@ -458,8 +481,7 @@ class SeedScene extends Scene {
         if (cube.children[powerupIndex]) {
             const powerupMesh = cube.children[powerupIndex].children[0];
             const flashPowerup = new TWEEN.Tween(powerupMesh.material).to({opacity: 0.0}, 700).easing(TWEEN.Easing.Linear.None);
-            const flashPowerupColor = new TWEEN.Tween(powerupMesh.material.color).to({r: 1.0}, 700).easing(TWEEN.Easing.Linear.None);
-            flashTweens.push(flashPowerup, flashPowerupColor);
+            flashTweens.push(flashPowerup);
         }
 
         return flashTweens;
@@ -523,6 +545,8 @@ class SeedScene extends Scene {
         if (this.scoreKeeper != undefined) this.remove(this.scoreKeeper);
         this.scoreKeeper = mesh;
         this.add(mesh);
+        geometry.dispose();
+        material.dispose();
     }
 }
 
