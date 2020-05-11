@@ -1,14 +1,9 @@
 import { Group, Vector3, LineDashedMaterial, BufferGeometry, LineSegments } from 'three';
 
 class Grid extends Group {
-    constructor(parent) {
+    constructor() {
         // Call parent Group() constructor
         super();
-
-        // Init state
-        this.state = {
-            gui: parent.state.gui,
-        };
 
         this.name = 'grid';
 

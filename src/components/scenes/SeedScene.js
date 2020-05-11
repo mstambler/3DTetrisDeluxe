@@ -1,4 +1,3 @@
-import * as Dat from 'dat.gui';
 import { Scene, Color, TextGeometry, MeshPhongMaterial, Mesh, Font } from 'three';
 import { Block, Floor, Grid } from 'objects';
 import { BasicLights } from 'lights';
@@ -38,8 +37,8 @@ class SeedScene extends Scene {
         };
 
         // Add meshes to scene
-        const floor = new Floor(this);
-        const grid = new Grid(this);
+        const floor = new Floor();
+        const grid = new Grid();
         const lights = new BasicLights();
         this.add(floor, grid, lights);
 

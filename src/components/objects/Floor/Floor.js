@@ -1,14 +1,9 @@
 import { Group, MeshBasicMaterial, Mesh, PlaneBufferGeometry } from 'three';
 
 class Floor extends Group {
-    constructor(parent) {
+    constructor() {
         // Call parent Group() constructor
         super();
-
-        // Init state
-        this.state = {
-            gui: parent.state.gui,
-        };
 
         this.name = 'floor';
 
@@ -16,6 +11,9 @@ class Floor extends Group {
         const geometry = new PlaneBufferGeometry(12, 4).rotateX(-0.5*Math.PI);
         const material = new MeshBasicMaterial({color: 0x555555});
         const mesh = new Mesh(geometry, material);
+
+        geometry.dispose();
+        material.dispose();
 
         // add to mesh
         this.add(mesh);

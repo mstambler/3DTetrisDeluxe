@@ -12,7 +12,6 @@ class Powerup extends Group {
 
         // Init state
         this.state = {
-            gui: parent.state.gui,
             type: Math.floor(Math.random()*4),
             r: -1,
         };

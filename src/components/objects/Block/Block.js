@@ -12,7 +12,6 @@ class Block extends Group {
 
         // Init state
         this.state = {
-            gui: parent.state.gui,
             shape: Math.floor(Math.random()*7),
             geo: 'Cube',
             continuousPos: 10,
